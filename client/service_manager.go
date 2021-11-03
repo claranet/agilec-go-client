@@ -1,15 +1,10 @@
 package client
 
 import (
-	"errors"
-	"log"
-
-	//"errors"
 	"fmt"
 	"github.com/outscope-solutions/acdn-go-client/container"
 	"github.com/outscope-solutions/acdn-go-client/models"
-	//"log"
-	//"strconv"
+	"net/http"
 )
 
 type ServiceManager struct {
@@ -26,74 +21,79 @@ func NewServiceManager(moURL string, client *Client) *ServiceManager {
 	return sm
 }
 
-//func createJsonPayload(payload map[string]interface{}) (*container.Container, error) {
-func createJsonPayload(classname string, payload []byte) (*container.Container, error) {
-	//containerJSON := []byte(fmt.Sprintf(`{
-	//	"%s": [{
-	//
-	//	}]
-	//}`, payload["classname"]))
-	//
-	//return container.ParseJSON(containerJSON)
+func (opts *RequestOpts) PrepareBody(classname string, obj models.Model) ([]byte, error) {
+	cont, err := obj.ToJson()
+	if err != nil {
+		return nil, err
+	}
+	body, err := createJsonPayload(classname, cont)
+	return body, err
+}
 
+func (opts *RequestOpts) setBody(classname string, obj models.Model) error {
+	body, err := opts.PrepareBody(classname, obj)
+
+	if err != nil {
+		return err
+	}
+
+	opts.JSONBody = body
+	return nil
+}
+
+func createJsonPayload(classname string, payload []byte) ([]byte, error) {
 	containerJSON := []byte(fmt.Sprintf(`{
 		"%s": [%s]
 	}`, classname, payload))
 
-	return container.ParseJSON(containerJSON)
+	body, err := container.ParseJSON(containerJSON)
+
+	return body.Bytes(), err
 }
 
-func (sm *ServiceManager) Save(classname string, url string, obj models.Model) error {
+func (sm *ServiceManager) Post(classname string, url string, obj models.Model, JSONResponse *interface{}, opts *RequestOpts) (*http.Response, error) {
 
-	jsonPayload, err := sm.PrepareModel(classname, obj)
-
-	if err != nil {
-		return err
+	if opts == nil {
+		opts = &RequestOpts{}
 	}
 
-	req, err := sm.client.MakeRestRequest("POST", url, jsonPayload, true)
-	if err != nil {
-		return err
-	}
-
-	cont, _, err := sm.client.Do(req)
-	if err != nil {
-		return err
-	}
-	return CheckForErrors(cont, "POST", sm.client.skipLoggingPayload)
-}
-
-func (sm *ServiceManager) Get(url string, id int) (*container.Container, error) {
-	finalURL := fmt.Sprintf("%s/%d", url, id)
-	req, err := sm.client.MakeRestRequest("GET", finalURL, nil, true)
+	err := opts.setBody(classname, obj)
 
 	if err != nil {
 		return nil, err
 	}
 
-	obj, _, err := sm.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
+	//req, err := sm.client.MakeRestRequest("POST", url, *opts /*, true*/)
+	//if err != nil {
+	//	return err
+	//}
 
-	if obj == nil {
-		return nil, errors.New("Empty response body")
-	}
-	log.Printf("[DEBUG] Exit from GET %s", finalURL)
-	return obj, CheckForErrors(obj, "GET", sm.client.skipLoggingPayload)
+	return sm.client.MakeRestRequest("POST", url, *opts /*, true*/)
+	//return CheckForErrors(cont, "POST", sm.client.skipLoggingPayload)
 }
 
-func (sm *ServiceManager) PrepareModel(classname string, obj models.Model) (*container.Container, error) {
-	cont, err := obj.ToMap()
-	if err != nil {
-		return nil, err
-	}
-	jsonPayload, err := createJsonPayload(classname, cont)
-	return jsonPayload, err
-}
+//func (sm *ServiceManager) Get(url string, id int) (*container.Container, error) {
+//	finalURL := fmt.Sprintf("%s/%d", url, id)
+//	req, err := sm.client.MakeRestRequest("GET", finalURL, nil/*, true*/)
+//
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	obj, _, err := sm.client.Do(req)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	if obj == nil {
+//		return nil, errors.New("Empty response body")
+//	}
+//	log.Printf("[DEBUG] Exit from GET %s", finalURL)
+//	return obj, CheckForErrors(obj, "GET", sm.client.skipLoggingPayload)
+//}
 
 // TODO
-func CheckForErrors(cont *container.Container, method string, skipLoggingPayload bool) error {
+//func CheckForErrors(cont *container.Container, method string, skipLoggingPayload bool) error {
 	//number, err := strconv.Atoi(models.G(cont, "totalCount"))
 	//if err != nil {
 	//	if !skipLoggingPayload {
@@ -140,5 +140,5 @@ func CheckForErrors(cont *container.Container, method string, skipLoggingPayload
 	//if !skipLoggingPayload {
 	//	log.Printf("[DEBUG] Exit from errors %v", cont)
 	//}
-	return nil
-}
+//	return nil
+//}

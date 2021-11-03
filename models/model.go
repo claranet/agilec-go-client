@@ -1,5 +1,5 @@
 package models
 
 type Model interface {
-	ToMap() ([]byte, error)
+	ToJson() ([]byte, error)
 }

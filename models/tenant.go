@@ -50,22 +50,7 @@ func NewTenant(id string, tenantAttrs TenantAttributes) *Tenant {
 	}
 }
 
-//func (tenant *Tenant) ToMap() (map[string]interface{}, error) {
-func (tenant *Tenant) ToMap() ([]byte, error) {
-
-	//e, err := json.Marshal(&tenant)
-	//dynamic := make(map[string]interface{})
-	//json.Unmarshal([]byte(e), &dynamic)
-
-	//tenantMap, err := tenant.BaseAttributes.ToMap()
-	//if err != nil {
-	//	return nil, err
-	//}
-	//A(tenantMap, "name", tenant.Name)
-	//A(tenantMap, "description", tenant.Description)
-	//A(tenantMap, "producer", tenant.Producer)
-	//B(tenantMap, "multicastCapability", tenant.MulticastCapability)
-	//C(tenantMap, "quota", tenant.Quota)
+func (tenant *Tenant) ToJson() ([]byte, error) {
 	return json.Marshal(&tenant)
 }
 
