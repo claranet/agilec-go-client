@@ -7,48 +7,30 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"sync"
+	"time"
 )
 
-const DefaultMOURL = "/controller/dc/v3"
+//const DefaultMOURL = "/controller/dc/v3"
 
 // Client is the main entry point
 type Client struct {
-	BaseURL            *url.URL
-	MOURL              string
+	BaseURL *url.URL
+	//MOURL              string
 	insecure           bool
 	httpClient         *http.Client
 	AuthToken          *Auth
+	l                  sync.Mutex
 	username           string
 	password           string
 	skipLoggingPayload bool
 	*ServiceManager
-}
-
-// RequestOpts customizes the behavior of the provider.Request() method.
-type RequestOpts struct {
-	// JSONBody, if provided, will be encoded as JSON and used as the body of the HTTP request. The
-	// content type of the request will default to "application/json" unless overridden by MoreHeaders.
-	// It's an error to specify both a JSONBody and a RawBody.
-	JSONBody []byte
-	//// RawBody contains an io.ReadSeeker that will be consumed by the request directly. No content-type
-	//// will be set unless one is provided explicitly by MoreHeaders.
-	//RawBody io.ReadSeeker
-
-	// JSONResponse, if provided, will be populated with the contents of the response body parsed as
-	// JSON.
-	JSONResponse interface{}
-	//// OkCodes contains a list of numeric HTTP status codes that should be interpreted as success. If
-	//// the response has a different code, an error will be returned.
-	//OkCodes []int
-
-	//// MoreHeaders specifies additional HTTP headers to be provide on the request. If a header is
-	//// provided with a blank value (""), that header will be *omitted* instead: use this to suppress
-	//// the default Accept header or an inferred Content-Type, for example.
-	//MoreHeaders map[string]string
 }
 
 // singleton implementation of a client
@@ -84,7 +66,7 @@ func initClient(clientUrl, username string, options ...Option) *Client {
 	client := &Client{
 		BaseURL:  bUrl,
 		username: username,
-		MOURL:    DefaultMOURL,
+		//MOURL:    DefaultMOURL,
 	}
 
 	for _, option := range options {
@@ -106,7 +88,7 @@ func initClient(clientUrl, username string, options ...Option) *Client {
 	//}
 
 	//client.httpClient.Timeout = timeout
-	client.ServiceManager = NewServiceManager(client.MOURL, client)
+	client.ServiceManager = NewServiceManager(client)
 	return client
 }
 
@@ -149,7 +131,7 @@ func (c *Client) useInsecureHTTPClient(insecure bool) *http.Transport {
 
 var applicationJSON = "application/json"
 
-func (c *Client) MakeRestRequest(method string, path string, options RequestOpts/*, authenticated bool*/) (*http.Response, error) {
+func (c *Client) MakeRestRequest(method string, path string, options RequestOpts, authenticated bool) (*http.Response, error) {
 	var body io.ReadSeeker
 	var contentType *string
 
@@ -187,17 +169,16 @@ func (c *Client) MakeRestRequest(method string, path string, options RequestOpts
 		log.Printf("HTTP request %s %s %v", method, path, req)
 	}
 
-	// TODO Authentication
-	//if authenticated {
-	//	req, err = c.InjectAuthenticationHeader(req, rpath)
-	//	if err != nil {
-	//		return req, err
-	//	}
-	//}
+	if authenticated {
+		req, err = c.InjectAuthenticationHeader(req, path)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	//if !c.skipLoggingPayload {
-	//	log.Printf("HTTP request after injection %s %s %v", method, path, req)
-	//}
+	if !c.skipLoggingPayload {
+		log.Printf("HTTP request after injection %s %s %v", method, path, req)
+	}
 
 	// Populate the request headers. Apply options.MoreHeaders last, to give the caller the chance to
 	// modify or omit any header.
@@ -205,12 +186,6 @@ func (c *Client) MakeRestRequest(method string, path string, options RequestOpts
 		req.Header.Set("Content-Type", *contentType)
 	}
 
-	req.Header.Set("Accept", applicationJSON)
-
-	//for k, v := range client.AuthenticatedHeaders() {
-	//	req.Header.Add(k, v)
-	//}
-	//
 	//// Set the User-Agent header
 	//req.Header.Set("User-Agent", client.UserAgent.Join())
 	//
@@ -240,49 +215,30 @@ func (c *Client) MakeRestRequest(method string, path string, options RequestOpts
 		log.Printf("\nHTTP Response: %d %s", resp.StatusCode, resp.Status)
 	}
 
-	//if resp.StatusCode == http.StatusUnauthorized {
-	//	if client.ReauthFunc != nil {
-	//		err = client.ReauthFunc()
-	//		if err != nil {
-	//			return nil, fmt.Errorf("Error trying to re-authenticate: %s", err)
-	//		}
-	//		if options.RawBody != nil {
-	//			options.RawBody.Seek(0, 0)
-	//		}
-	//		resp.Body.Close()
-	//		resp, err = client.Request(method, url, options)
-	//		if err != nil {
-	//			return nil, fmt.Errorf("Successfully re-authenticated, but got error executing request: %s", err)
-	//		}
-	//
-	//		return resp, nil
-	//	}
-	//}
-	//
 	//// Allow default OkCodes if none explicitly set
-	//if options.OkCodes == nil {
-	//	options.OkCodes = defaultOkCodes(method)
-	//}
-	//
-	//// Validate the HTTP response status.
-	//var ok bool
-	//for _, code := range options.OkCodes {
-	//	if resp.StatusCode == code {
-	//		ok = true
-	//		break
-	//	}
-	//}
-	//if !ok {
-	//	body, _ := ioutil.ReadAll(resp.Body)
-	//	resp.Body.Close()
-	//	return resp, &UnexpectedResponseCodeError{
-	//		URL:      url,
-	//		Method:   method,
-	//		Expected: options.OkCodes,
-	//		Actual:   resp.StatusCode,
-	//		Body:     body,
-	//	}
-	//}
+	if options.OkCodes == nil {
+		options.OkCodes = defaultOkCodes(method)
+	}
+
+	// Validate the HTTP response status.
+	var ok bool
+	for _, code := range options.OkCodes {
+		if resp.StatusCode == code {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		body, _ := ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
+		return resp, &UnexpectedResponseCodeError{
+			URL:      fURL.String(),
+			Method:   method,
+			Expected: options.OkCodes,
+			Actual:   resp.StatusCode,
+			Body:     body,
+		}
+	}
 
 	// Parse the response body as JSON, if requested to do so.
 	if options.JSONResponse != nil {
@@ -291,45 +247,63 @@ func (c *Client) MakeRestRequest(method string, path string, options RequestOpts
 			return nil, err
 		}
 	}
-
 	return resp, nil
 }
 
-//func (c *Client) Do(req *http.Request) (*container.Container, *http.Response, error) {
-//	log.Printf("[DEBUG] Begining DO method %s", req.URL.String())
-//
-//	if !c.skipLoggingPayload {
-//		log.Printf("\n\n\n HTTP request: %v", req.Body)
-//	}
-//
-//	resp, err := c.httpClient.Do(req)
-//
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//
-//	log.Printf("\nHTTP Request: %s %s", req.Method, req.URL.String())
-//	if !c.skipLoggingPayload {
-//		log.Printf("\nHTTP Response: %d %s %v", resp.StatusCode, resp.Status, resp)
-//	} else {
-//		log.Printf("\nHTTP Response: %d %s", resp.StatusCode, resp.Status)
-//	}
-//
-//	bodyBytes, err := ioutil.ReadAll(resp.Body)
-//	bodyStr := string(bodyBytes)
-//	resp.Body.Close()
-//
-//	if !c.skipLoggingPayload {
-//		log.Printf("\n HTTP response unique string %s %s %s", req.Method, req.URL.String(), bodyStr)
-//	}
-//	obj, err := container.ParseJSON(bodyBytes)
-//
-//	if err != nil {
-//
-//		log.Printf("Error occured while json parsing %+v", err)
-//		return nil, resp, err
-//	}
-//	log.Printf("[DEBUG] Exit from do method")
-//
-//	return obj, resp, err
-//}
+func (c *Client) Authenticate() error {
+	method := "POST"
+	path := "/controller/v2/tokens"
+	var response AuthResponse
+
+	opts := &RequestOpts{}
+	opts.JSONBody = []byte(fmt.Sprintf(authPayload, c.username, c.password))
+	opts.JSONResponse = &response
+	opts.OkCodes = []int{200}
+
+	c.skipLoggingPayload = true
+
+	_, err := c.MakeRestRequest(method, path, *opts, false)
+	if err != nil {
+		return err
+	}
+
+	c.skipLoggingPayload = false
+	if err != nil {
+		log.Printf("[DEBUG]: ERROR %s", err)
+		return err
+	}
+
+	token := opts.JSONResponse.(*AuthResponse).Data.(map[string]interface{})["token_id"].(string)
+	expiredDateStr := opts.JSONResponse.(*AuthResponse).Data.(map[string]interface{})["expiredDate"].(string)
+	expiredDate, err := time.Parse(expiredDateLayout, expiredDateStr)
+
+	if err != nil {
+		return err
+	}
+
+	if c.AuthToken == nil {
+		c.AuthToken = &Auth{}
+	}
+	c.AuthToken.Token = token
+	c.AuthToken.Expiry = expiredDate
+	c.AuthToken.CaclulateOffset()
+
+	return nil
+}
+
+func defaultOkCodes(method string) []int {
+	switch {
+	case method == "GET":
+		return []int{200}
+	case method == "POST":
+		return []int{201, 202}
+	case method == "PUT":
+		return []int{201, 202}
+	case method == "PATCH":
+		return []int{200, 204}
+	case method == "DELETE":
+		return []int{202, 204}
+	}
+
+	return []int{}
+}

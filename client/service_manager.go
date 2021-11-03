@@ -12,13 +12,42 @@ type ServiceManager struct {
 	client *Client
 }
 
-func NewServiceManager(moURL string, client *Client) *ServiceManager {
+// RequestOpts customizes the behavior of the provider.Request() method.
+type RequestOpts struct {
+	// JSONBody, if provided, will be encoded as JSON and used as the body of the HTTP request. The
+	// content type of the request will default to "application/json" unless overridden by MoreHeaders.
+	// It's an error to specify both a JSONBody and a RawBody.
+	JSONBody []byte
 
-	sm := &ServiceManager{
-		//MOURL:  moURL,
-		client: client,
-	}
-	return sm
+	// JSONResponse, if provided, will be populated with the contents of the response body parsed as
+	// JSON.
+	JSONResponse interface{}
+
+	// OkCodes contains a list of numeric HTTP status codes that should be interpreted as success. If
+	// the response has a different code, an error will be returned.
+	OkCodes []int
+
+	//// MoreHeaders specifies additional HTTP headers to be provide on the request. If a header is
+	//// provided with a blank value (""), that header will be *omitted* instead: use this to suppress
+	//// the default Accept header or an inferred Content-Type, for example.
+	//MoreHeaders map[string]string
+}
+
+// UnexpectedResponseCodeError is returned by the Request method when a response code other than
+// those listed in OkCodes is encountered.
+type UnexpectedResponseCodeError struct {
+	URL      string
+	Method   string
+	Expected []int
+	Actual   int
+	Body     []byte
+}
+
+func (err *UnexpectedResponseCodeError) Error() string {
+	return fmt.Sprintf(
+		"Expected HTTP response code %v when accessing [%s %s], but got %d instead\n%s",
+		err.Expected, err.Method, err.URL, err.Actual, err.Body,
+	)
 }
 
 func (opts *RequestOpts) PrepareBody(classname string, obj models.Model) ([]byte, error) {
@@ -39,6 +68,15 @@ func (opts *RequestOpts) setBody(classname string, obj models.Model) error {
 
 	opts.JSONBody = body
 	return nil
+}
+
+func NewServiceManager(client *Client) *ServiceManager {
+
+	sm := &ServiceManager{
+		//MOURL:  moURL,
+		client: client,
+	}
+	return sm
 }
 
 func createJsonPayload(classname string, payload []byte) ([]byte, error) {
@@ -68,7 +106,7 @@ func (sm *ServiceManager) Post(classname string, url string, obj models.Model, J
 	//	return err
 	//}
 
-	return sm.client.MakeRestRequest("POST", url, *opts /*, true*/)
+	return sm.client.MakeRestRequest("POST", url, *opts, true)
 	//return CheckForErrors(cont, "POST", sm.client.skipLoggingPayload)
 }
 
@@ -94,51 +132,51 @@ func (sm *ServiceManager) Post(classname string, url string, obj models.Model, J
 
 // TODO
 //func CheckForErrors(cont *container.Container, method string, skipLoggingPayload bool) error {
-	//number, err := strconv.Atoi(models.G(cont, "totalCount"))
-	//if err != nil {
-	//	if !skipLoggingPayload {
-	//		log.Printf("[DEBUG] Exit from errors, Unable to parse error count from response %v", cont)
-	//	} else {
-	//		log.Printf("[DEBUG] Exit from errors %s", err.Error())
-	//	}
-	//	return err
-	//}
-	//imdata := cont.S("imdata").Index(0)
-	//if number > 0 {
-	//
-	//	if imdata.Exists("error") {
-	//
-	//		if models.StripQuotes(imdata.Path("error.attributes.code").String()) == "103" {
-	//			if !skipLoggingPayload {
-	//				log.Printf("[DEBUG] Exit from error 103 %v", cont)
-	//			}
-	//			return nil
-	//		} else {
-	//			if models.StripQuotes(imdata.Path("error.attributes.text").String()) == "" && models.StripQuotes(imdata.Path("error.attributes.code").String()) == "403" {
-	//				if !skipLoggingPayload {
-	//					log.Printf("[DEBUG] Exit from authentication error 403 %v", cont)
-	//				}
-	//				return errors.New("Unable to authenticate. Please check your credentials")
-	//			}
-	//			if !skipLoggingPayload {
-	//				log.Printf("[DEBUG] Exit from errors %v", cont)
-	//			}
-	//
-	//			return errors.New(models.StripQuotes(imdata.Path("error.attributes.text").String()))
-	//		}
-	//	}
-	//
-	//}
-	//
-	//if imdata.String() == "{}" && method == "GET" {
-	//	if !skipLoggingPayload {
-	//		log.Printf("[DEBUG] Exit from error (Empty response) %v", cont)
-	//	}
-	//
-	//	return errors.New("Error retrieving Object: Object may not exists")
-	//}
-	//if !skipLoggingPayload {
-	//	log.Printf("[DEBUG] Exit from errors %v", cont)
-	//}
+//number, err := strconv.Atoi(models.G(cont, "totalCount"))
+//if err != nil {
+//	if !skipLoggingPayload {
+//		log.Printf("[DEBUG] Exit from errors, Unable to parse error count from response %v", cont)
+//	} else {
+//		log.Printf("[DEBUG] Exit from errors %s", err.Error())
+//	}
+//	return err
+//}
+//imdata := cont.S("imdata").Index(0)
+//if number > 0 {
+//
+//	if imdata.Exists("error") {
+//
+//		if models.StripQuotes(imdata.Path("error.attributes.code").String()) == "103" {
+//			if !skipLoggingPayload {
+//				log.Printf("[DEBUG] Exit from error 103 %v", cont)
+//			}
+//			return nil
+//		} else {
+//			if models.StripQuotes(imdata.Path("error.attributes.text").String()) == "" && models.StripQuotes(imdata.Path("error.attributes.code").String()) == "403" {
+//				if !skipLoggingPayload {
+//					log.Printf("[DEBUG] Exit from authentication error 403 %v", cont)
+//				}
+//				return errors.New("Unable to authenticate. Please check your credentials")
+//			}
+//			if !skipLoggingPayload {
+//				log.Printf("[DEBUG] Exit from errors %v", cont)
+//			}
+//
+//			return errors.New(models.StripQuotes(imdata.Path("error.attributes.text").String()))
+//		}
+//	}
+//
+//}
+//
+//if imdata.String() == "{}" && method == "GET" {
+//	if !skipLoggingPayload {
+//		log.Printf("[DEBUG] Exit from error (Empty response) %v", cont)
+//	}
+//
+//	return errors.New("Error retrieving Object: Object may not exists")
+//}
+//if !skipLoggingPayload {
+//	log.Printf("[DEBUG] Exit from errors %v", cont)
+//}
 //	return nil
 //}
