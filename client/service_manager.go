@@ -33,6 +33,10 @@ type RequestOpts struct {
 	//MoreHeaders map[string]string
 }
 
+//type Result struct {
+//	Body interface{}
+//}
+
 // UnexpectedResponseCodeError is returned by the Request method when a response code other than
 // those listed in OkCodes is encountered.
 type UnexpectedResponseCodeError struct {
@@ -89,7 +93,7 @@ func createJsonPayload(classname string, payload []byte) ([]byte, error) {
 	return body.Bytes(), err
 }
 
-func (sm *ServiceManager) Post(classname string, url string, obj models.Model, JSONResponse *interface{}, opts *RequestOpts) (*http.Response, error) {
+func (sm *ServiceManager) Post(classname, url string, obj models.Model, opts *RequestOpts) (*http.Response, error) {
 
 	if opts == nil {
 		opts = &RequestOpts{}
@@ -101,82 +105,35 @@ func (sm *ServiceManager) Post(classname string, url string, obj models.Model, J
 		return nil, err
 	}
 
-	//req, err := sm.client.MakeRestRequest("POST", url, *opts /*, true*/)
-	//if err != nil {
-	//	return err
-	//}
-
 	return sm.client.MakeRestRequest("POST", url, *opts, true)
-	//return CheckForErrors(cont, "POST", sm.client.skipLoggingPayload)
 }
 
-//func (sm *ServiceManager) Get(url string, id int) (*container.Container, error) {
-//	finalURL := fmt.Sprintf("%s/%d", url, id)
-//	req, err := sm.client.MakeRestRequest("GET", finalURL, nil/*, true*/)
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	obj, _, err := sm.client.Do(req)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	if obj == nil {
-//		return nil, errors.New("Empty response body")
-//	}
-//	log.Printf("[DEBUG] Exit from GET %s", finalURL)
-//	return obj, CheckForErrors(obj, "GET", sm.client.skipLoggingPayload)
-//}
+func (sm *ServiceManager) Get(classname , url string, id string, opts *RequestOpts) (*http.Response, error) {
+	fURL := fmt.Sprintf("%s/%s/%s", url, classname, id)
+	return sm.client.MakeRestRequest("GET", fURL, *opts, true)
+}
 
-// TODO
-//func CheckForErrors(cont *container.Container, method string, skipLoggingPayload bool) error {
-//number, err := strconv.Atoi(models.G(cont, "totalCount"))
-//if err != nil {
-//	if !skipLoggingPayload {
-//		log.Printf("[DEBUG] Exit from errors, Unable to parse error count from response %v", cont)
-//	} else {
-//		log.Printf("[DEBUG] Exit from errors %s", err.Error())
-//	}
-//	return err
-//}
-//imdata := cont.S("imdata").Index(0)
-//if number > 0 {
-//
-//	if imdata.Exists("error") {
-//
-//		if models.StripQuotes(imdata.Path("error.attributes.code").String()) == "103" {
-//			if !skipLoggingPayload {
-//				log.Printf("[DEBUG] Exit from error 103 %v", cont)
-//			}
-//			return nil
-//		} else {
-//			if models.StripQuotes(imdata.Path("error.attributes.text").String()) == "" && models.StripQuotes(imdata.Path("error.attributes.code").String()) == "403" {
-//				if !skipLoggingPayload {
-//					log.Printf("[DEBUG] Exit from authentication error 403 %v", cont)
-//				}
-//				return errors.New("Unable to authenticate. Please check your credentials")
-//			}
-//			if !skipLoggingPayload {
-//				log.Printf("[DEBUG] Exit from errors %v", cont)
-//			}
-//
-//			return errors.New(models.StripQuotes(imdata.Path("error.attributes.text").String()))
-//		}
-//	}
-//
-//}
-//
-//if imdata.String() == "{}" && method == "GET" {
-//	if !skipLoggingPayload {
-//		log.Printf("[DEBUG] Exit from error (Empty response) %v", cont)
-//	}
-//
-//	return errors.New("Error retrieving Object: Object may not exists")
-//}
-//if !skipLoggingPayload {
-//	log.Printf("[DEBUG] Exit from errors %v", cont)
-//}
-//	return nil
-//}
+func (sm *ServiceManager) Del(classname , url string, id string, opts *RequestOpts) (*http.Response, error) {
+	fURL := fmt.Sprintf("%s/%s/%s", url, classname, id)
+	if opts == nil {
+		opts = &RequestOpts{}
+	}
+	return sm.client.MakeRestRequest("DELETE", fURL, *opts, true)
+}
+
+func (sm *ServiceManager) Put(classname, url , id string, obj models.Model, opts *RequestOpts) (*http.Response, error) {
+
+	fURL := fmt.Sprintf("%s/%s/%s", url, classname, id)
+
+	if opts == nil {
+		opts = &RequestOpts{}
+	}
+
+	err := opts.setBody(classname, obj)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sm.client.MakeRestRequest("PUT", fURL, *opts, true)
+}

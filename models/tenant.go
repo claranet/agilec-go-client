@@ -2,10 +2,13 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/outscope-solutions/acdn-go-client/container"
 )
 
 const TenantClassName = "tenant"
+
+type TenantBody struct {
+	Tenant []Tenant
+}
 
 type Tenant struct {
 	BaseAttributes
@@ -16,6 +19,8 @@ type TenantAttributes struct {
 	Name                string                `json:"name,omitempty"`
 	Description         string                `json:"description,omitempty"`
 	Producer            string                `json:"producer,omitempty"`
+	CreateAt            string                 `json:"createAt,omitempty"`
+	UpdateAt            string                 `json:"updateAt,omitempty"`
 	MulticastCapability bool                  `json:"multicastCapability,omitempty"`
 	Quota               *TenantQuota          `json:"quota,omitempty"`
 	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota,omitempty"`
@@ -54,24 +59,10 @@ func (tenant *Tenant) ToJson() ([]byte, error) {
 	return json.Marshal(&tenant)
 }
 
-func TenantFromContainerList(cont *container.Container, index int) *Tenant {
-
-	TenantCont := cont.Index(index)
-	return &Tenant{
-		BaseAttributes{
-			Id:        G(TenantCont, "id").(string),
-			ClassName: TenantClassName,
-		},
-
-		TenantAttributes{
-			Name:                G(TenantCont, "name").(string),
-			Description:         G(TenantCont, "description").(string),
-			Producer:            G(TenantCont, "producer").(string),
-			MulticastCapability: G(TenantCont, "multicastCapability").(bool),
-		},
-	}
+func TenantFromContainerList(body *TenantBody, index int) *Tenant {
+	return &body.Tenant[index]
 }
 
-func TenantFromContainer(cont *container.Container) *Tenant {
-	return TenantFromContainerList(cont.S(TenantClassName), 0)
+func TenantFromResponse(body *TenantBody) *Tenant {
+	return TenantFromContainerList(body, 0)
 }

@@ -17,6 +17,8 @@
 # IDE Folders
 .idea/
 
+# GoLang Files
+go.sum
 
 # Environment Files
 .env

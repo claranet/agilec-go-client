@@ -296,13 +296,13 @@ func defaultOkCodes(method string) []int {
 	case method == "GET":
 		return []int{200}
 	case method == "POST":
-		return []int{201, 202}
-	case method == "PUT":
-		return []int{201, 202}
-	case method == "PATCH":
-		return []int{200, 204}
-	case method == "DELETE":
 		return []int{202, 204}
+	case method == "PUT":
+		return []int{200}
+	//case method == "PATCH":
+	//	return []int{200, 204}
+	case method == "DELETE":
+		return []int{204}
 	}
 
 	return []int{}
