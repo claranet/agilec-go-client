@@ -24,7 +24,6 @@ import (
 // Client is the main entry point
 type Client struct {
 	BaseURL *url.URL
-	//MOURL              string
 	insecure           bool
 	httpClient         *http.Client
 	AuthToken          *Auth
@@ -68,7 +67,6 @@ func initClient(clientUrl, username string, options ...Option) *Client {
 	client := &Client{
 		BaseURL:  bUrl,
 		username: username,
-		//MOURL:    DefaultMOURL,
 	}
 
 	for _, option := range options {
@@ -207,15 +205,14 @@ func (c *Client) MakeRestRequest(method string, path string, options RequestOpts
 			switch v.(type) {
 				case string:
 					query.Add(k, v.(string))
-				case int32:
-					query.Add(k, strconv.Itoa(int(v.(int32))))
+				case float64:
+					query.Add(k, strconv.Itoa(int(v.(float64))))
 				default:
 					return nil, errors.New("query String Parameter Type not supported")
 			}
-
 		}
+		req.URL.RawQuery = query.Encode()
 	}
-
 	// Set connection parameter to close the connection immediately when we've got the response
 	req.Close = true
 

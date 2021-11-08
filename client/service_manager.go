@@ -8,7 +8,6 @@ import (
 )
 
 type ServiceManager struct {
-	//MOURL  string
 	client *Client
 }
 

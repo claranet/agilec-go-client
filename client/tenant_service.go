@@ -4,11 +4,11 @@ import (
 	"github.com/outscope-solutions/acdn-go-client/models"
 )
 
-const URL = "/controller/dc/v3/tenants"
+const TenantModuleURL = "/controller/dc/v3/tenants"
 
 // TODO Tenant Name Already Exists Error
 func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) (*models.Tenant, error) {
-	_, err := sm.Post(models.TenantModuleName, URL, tenant, nil)
+	_, err := sm.Post(models.TenantModuleName, TenantModuleURL, tenant, nil)
 	return tenant, err
 }
 
@@ -17,7 +17,7 @@ func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 	opts := &RequestOpts{}
 	opts.JSONResponse = &response
 
-	_, err := sm.Get(models.TenantModuleName, URL, id, opts)
+	_, err := sm.Get(models.TenantModuleName, TenantModuleURL, id, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -26,12 +26,12 @@ func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 }
 
 func (sm *ServiceManager) DeleteTenant(id string) error {
-	_, err := sm.Del(models.TenantModuleName, URL, id, nil)
+	_, err := sm.Del(models.TenantModuleName, TenantModuleURL, id, nil)
 	return err
 }
 
 func (sm *ServiceManager) UpdateTenant(id string, tenant *models.Tenant) (*models.Tenant, error) {
-	_, err := sm.Put(models.TenantModuleName, URL, id, tenant, nil)
+	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, id, tenant, nil)
 	return tenant, err
 }
 
@@ -40,7 +40,7 @@ func (sm *ServiceManager) GetTenants(queryParmeters *models.TenantRequestParamet
 	opts := &RequestOpts{}
 	opts.JSONResponse = &response
 
-	_, err := sm.List(URL, opts, queryParmeters)
+	_, err := sm.List(TenantModuleURL, opts, queryParmeters)
 	tenantResponse := opts.JSONResponse.(*models.TenantResponseBody)
 
 	return tenantResponse, err

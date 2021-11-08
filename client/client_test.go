@@ -48,22 +48,31 @@ func TestClientAuthenticateOK(t *testing.T) {
 
 	//err := client.DeleteTenant("51c5b574-a4fa-44a9-617b-ac058674f4b7")
 
-	requestParameters := &models.TenantRequestParameters{}
-	requestParameters.PageSize = 1
-	requestParameters.PageIndex = 2
-	requestParameters.Producer = "teste"
+	ListOpts := &models.LogicalPortListOpts{}
+	ListOpts.PageSize = 10
+	ListOpts.PageIndex = 2
+	ListOpts.LogicSwitchId = "bf1a554f-7cfa-4816-8aee-8353b12e844b"
 
-	tenants, err := client.GetTenants(requestParameters)
+
+	logicalPorts, err := client.GetLogicalPorts(ListOpts)
+
+	logicalPorts.Next()
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	fmt.Println(tenants.PageIndex)
-	for _, element := range tenants.Tenant {
+	fmt.Println("-----------")
+
+	fmt.Println(logicalPorts.PageIndex)
+
+
+
+	fmt.Println("-----------")
+	//.previous()
+
+	for _, element := range logicalPorts.Port {
 		fmt.Println(element.Name)
-		// index is the index where we are
-		// element is the element from someSlice for where we are
 	}
 
 
