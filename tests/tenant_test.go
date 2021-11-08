@@ -46,7 +46,7 @@ func TestCreateTenant (t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCreateDuplicateTenant (t *testing.T) {
+func TestCreateTenantDuplicate (t *testing.T) {
 	tenant := GetTenant()
 	defer DeleteTenant(tenant.Id)
 	client := helper.GetClient()
@@ -57,6 +57,17 @@ func TestCreateDuplicateTenant (t *testing.T) {
 		assert.EqualError(t, err, "The tenant id already exist.", err)
 	}
 }
+
+func TestCreateTenantInvalidID (t *testing.T) {
+	tenant := GetTenant()
+	tenant.Id = "dummy"
+	client := helper.GetClient()
+	err := client.CreateTenant(tenant)
+	if assert.NotNil(t, err) {
+		assert.EqualError(t, err, "Invalid UUID format.", err)
+	}
+}
+
 
 //func TestCreateTenantWithoutID (t *testing.T) {  // Make request error for type conversion
 //	tenant := GetTenant()
