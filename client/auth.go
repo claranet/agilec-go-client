@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
-	"log"
 	"time"
 )
 
@@ -44,7 +43,7 @@ func (au *Auth) IsValid() bool {
 }
 
 func (client *Client) InjectAuthenticationHeader(req *resty.Request) error {
-	log.Printf("[DEBUG] Begin Injection")
+	//log.Printf("[DEBUG] Begin Injection")
 	client.l.Lock()
 	defer client.l.Unlock()
 	if client.password != "" {

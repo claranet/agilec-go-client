@@ -35,8 +35,8 @@ func (sm *ServiceManager) DeleteTenant(id string) error {
 	return err
 }
 
-func (sm *ServiceManager) UpdateTenant(id string, tenant *models.Tenant) error {
-	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, id, &RequestOpts{
+func (sm *ServiceManager) UpdateTenant(tenant *models.Tenant) error {
+	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{
 		Body:  models.TenantList{
 			Tenant: []models.Tenant{*tenant},
 		}})

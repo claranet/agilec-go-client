@@ -7,9 +7,12 @@ import (
 	"crypto/tls"
 	"fmt"
 	resty "github.com/go-resty/resty/v2"
+	"log"
+	"net/url"
 	"reflect"
 	"sync"
 	"time"
+	"github.com/google/go-querystring/query"
 )
 
 // Client is the main entry point
@@ -21,7 +24,7 @@ type Client struct {
 	l                  sync.Mutex
 	username           string
 	password           string
-	skipLoggingPayload bool
+	//skipLoggingPayload bool
 	*ServiceManager
 }
 
@@ -42,11 +45,11 @@ func Insecure(insecure bool) Option {
 	}
 }
 
-func SkipLoggingPayload(skipLoggingPayload bool) Option {
-	return func(client *Client) {
-		client.skipLoggingPayload = skipLoggingPayload
-	}
-}
+//func SkipLoggingPayload(skipLoggingPayload bool) Option {
+//	return func(client *Client) {
+//		client.skipLoggingPayload = skipLoggingPayload
+//	}
+//}
 
 func initClient(clientUrl, username string, options ...Option) *Client {
 	//bUrl, err := url.Parse(clientUrl)
@@ -101,6 +104,22 @@ func GetClient(clientUrl, username string, options ...Option) *Client {
 	return clientImpl
 }
 
+// NewClient returns a new Instance of the client - allowing for simultaneous connections to the same APIC
+func NewClient(clientUrl, username string, options ...Option) *Client {
+	// making sure it is the same client
+	_, err := url.Parse(clientUrl)
+	if err != nil {
+		// cannot move forward if url is undefined
+		log.Fatal(err)
+	}
+
+	// initClient always returns a new struct, so always create a new pointer to allow for
+	// multiple object instances
+	newClientImpl := initClient(clientUrl, username, options...)
+
+	return newClientImpl
+}
+
 func (c *Client) NewRequest(method, url string, opts RequestOpts, authenticated bool) (*resty.Response, error) {
 	request := c.httpClient.R().SetHeader("Content-Type", "application/json")
 	request.SetError(&ErrorResponse{})
@@ -112,11 +131,11 @@ func (c *Client) NewRequest(method, url string, opts RequestOpts, authenticated 
 	}
 
 	if opts.QueryString != nil {
-		queryParametersMap , err := StructToMap(opts.QueryString)
+		q, err := query.Values(opts.QueryString)
 		if err != nil {
 			return nil, err
 		}
-		request.SetQueryParams(queryParametersMap)
+		request.SetQueryString(q.Encode())
 	}
 
 	if opts.Body != nil {
@@ -124,13 +143,16 @@ func (c *Client) NewRequest(method, url string, opts RequestOpts, authenticated 
 	}
 
 	if opts.Response != nil {
-		request.SetResult(opts.Response)
+		request.SetResult(&opts.Response)
 	}
 
 	doRequest := reflect.ValueOf(request).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(url)})
 	response := doRequest[0].Interface().(*resty.Response)
 
-	return response, response.Error().(*ErrorResponse)
+	if response.IsError() {
+		return nil, response.Error().(*ErrorResponse)
+	}
+	return response, nil
 }
 
 func (c *Client) Authenticate() error {

@@ -102,7 +102,11 @@ func (sm *ServiceManager) Get(modulename, url, id string, opts *RequestOpts) (*r
 
 func (sm *ServiceManager) Del(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
 	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
-	return sm.client.NewRequest("Delete", fURL, *opts, true)
+	reqOpts := &RequestOpts{}
+	if opts != nil {
+		reqOpts = opts
+	}
+	return sm.client.NewRequest("Delete", fURL, *reqOpts, true)
 }
 
 func (sm *ServiceManager) Put(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
