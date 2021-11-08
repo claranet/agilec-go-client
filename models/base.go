@@ -6,7 +6,7 @@ type BaseResponseAttributes struct {
 	PageSize  int32 `json:"pageSize,omitempty"`
 }
 
-type BaseRequestParameters struct {
+type BaseRequestOpts struct {
 	PageIndex int32 `json:"pageIndex,omitempty"`
 	PageSize  int32 `json:"pageSize,omitempty"`
 }

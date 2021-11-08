@@ -2,8 +2,8 @@ package client
 
 import (
 	"fmt"
+	"github.com/go-resty/resty/v2"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -23,9 +23,9 @@ type Auth struct {
 }
 
 type AuthResponse struct {
-	Data      interface{} `json:"data"`
-	ErrorCode string      `json:"errcode"`
-	ErrMsg    string      `json:"errmsg"`
+	Data      interface{} `json:"data,omitempty"`
+	ErrorCode string      `json:"errcode,omitempty"`
+	ErrMsg    string      `json:"errmsg,omitempty"`
 }
 
 func (t *Auth) estimateExpireTime() int64 {
@@ -43,7 +43,7 @@ func (au *Auth) IsValid() bool {
 	return false
 }
 
-func (client *Client) InjectAuthenticationHeader(req *http.Request, path string) (*http.Request, error) {
+func (client *Client) InjectAuthenticationHeader(req *resty.Request) error {
 	log.Printf("[DEBUG] Begin Injection")
 	client.l.Lock()
 	defer client.l.Unlock()
@@ -51,11 +51,11 @@ func (client *Client) InjectAuthenticationHeader(req *http.Request, path string)
 		if client.AuthToken == nil || !client.AuthToken.IsValid() {
 			err := client.Authenticate()
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 		req.Header.Add("X-ACCESS-TOKEN", client.AuthToken.Token)
-		return req, nil
+		return nil
 	}
-	return req, fmt.Errorf("password is missing")
+	return fmt.Errorf("password is missing")
 }

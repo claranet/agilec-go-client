@@ -1,19 +1,19 @@
 package models
 
-import (
-	"encoding/json"
-)
-
 const TenantModuleName = "tenant"
 
-type TenantRequestParameters struct {
+type TenantRequestOpts struct {
 	Producer string `json:"producer,omitempty"`
-	BaseRequestParameters
+	BaseRequestOpts
 }
 
 type TenantResponseBody struct {
-	Tenant []Tenant `json:"tenant"`
+	TenantList
 	BaseResponseAttributes
+}
+
+type TenantList struct {
+	Tenant []Tenant `json:"tenant"`
 }
 
 type Tenant struct {
@@ -45,16 +45,4 @@ type TenantResPool struct {
 	FabricIds          []string `json:"fabricIds,omitempty"`
 	VmmIds             []string `json:"vmmIds,omitempty"`
 	DhcpGroupIds       []string `json:"dhcpGroupIds,omitempty"`
-}
-
-func (tenant *Tenant) ToJson() ([]byte, error) {
-	return json.Marshal(&tenant)
-}
-
-func TenantFromContainerList(body *TenantResponseBody, index int) *Tenant {
-	return &body.Tenant[index]
-}
-
-func TenantFromResponse(body *TenantResponseBody) *Tenant {
-	return TenantFromContainerList(body, 0)
 }
