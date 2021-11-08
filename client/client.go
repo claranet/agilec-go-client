@@ -7,12 +7,14 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -198,6 +200,21 @@ func (c *Client) MakeRestRequest(method string, path string, options RequestOpts
 	//		}
 	//	}
 	//}
+
+	if options.QueryStringParameters != nil {
+		query := req.URL.Query()
+		for k, v := range options.QueryStringParameters {
+			switch v.(type) {
+				case string:
+					query.Add(k, v.(string))
+				case int32:
+					query.Add(k, strconv.Itoa(int(v.(int32))))
+				default:
+					return nil, errors.New("query String Parameter Type not supported")
+			}
+
+		}
+	}
 
 	// Set connection parameter to close the connection immediately when we've got the response
 	req.Close = true

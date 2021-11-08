@@ -14,6 +14,9 @@ type ServiceManager struct {
 
 // RequestOpts customizes the behavior of the provider.Request() method.
 type RequestOpts struct {
+
+	QueryStringParameters map[string]interface{}
+
 	// JSONBody, if provided, will be encoded as JSON and used as the body of the HTTP request. The
 	// content type of the request will default to "application/json" unless overridden by MoreHeaders.
 	// It's an error to specify both a JSONBody and a RawBody.
@@ -33,10 +36,6 @@ type RequestOpts struct {
 	//MoreHeaders map[string]string
 }
 
-//type Result struct {
-//	Body interface{}
-//}
-
 // UnexpectedResponseCodeError is returned by the Request method when a response code other than
 // those listed in OkCodes is encountered.
 type UnexpectedResponseCodeError struct {
@@ -54,17 +53,27 @@ func (err *UnexpectedResponseCodeError) Error() string {
 	)
 }
 
-func (opts *RequestOpts) PrepareBody(classname string, obj models.Model) ([]byte, error) {
+func createJsonPayload(modulename string, payload []byte) ([]byte, error) {
+	containerJSON := []byte(fmt.Sprintf(`{
+		"%s": [%s]
+	}`, modulename, payload))
+
+	body, err := container.ParseJSON(containerJSON)
+
+	return body.Bytes(), err
+}
+
+func (opts *RequestOpts) PrepareBody(modulename string, obj models.Model) ([]byte, error) {
 	cont, err := obj.ToJson()
 	if err != nil {
 		return nil, err
 	}
-	body, err := createJsonPayload(classname, cont)
+	body, err := createJsonPayload(modulename, cont)
 	return body, err
 }
 
-func (opts *RequestOpts) setBody(classname string, obj models.Model) error {
-	body, err := opts.PrepareBody(classname, obj)
+func (opts *RequestOpts) setBody(modulename string, obj models.Model) error {
+	body, err := opts.PrepareBody(modulename, obj)
 
 	if err != nil {
 		return err
@@ -83,23 +92,13 @@ func NewServiceManager(client *Client) *ServiceManager {
 	return sm
 }
 
-func createJsonPayload(classname string, payload []byte) ([]byte, error) {
-	containerJSON := []byte(fmt.Sprintf(`{
-		"%s": [%s]
-	}`, classname, payload))
-
-	body, err := container.ParseJSON(containerJSON)
-
-	return body.Bytes(), err
-}
-
-func (sm *ServiceManager) Post(classname, url string, obj models.Model, opts *RequestOpts) (*http.Response, error) {
+func (sm *ServiceManager) Post(modulename, url string, obj models.Model, opts *RequestOpts) (*http.Response, error) {
 
 	if opts == nil {
 		opts = &RequestOpts{}
 	}
 
-	err := opts.setBody(classname, obj)
+	err := opts.setBody(modulename, obj)
 
 	if err != nil {
 		return nil, err
@@ -108,32 +107,51 @@ func (sm *ServiceManager) Post(classname, url string, obj models.Model, opts *Re
 	return sm.client.MakeRestRequest("POST", url, *opts, true)
 }
 
-func (sm *ServiceManager) Get(classname , url string, id string, opts *RequestOpts) (*http.Response, error) {
-	fURL := fmt.Sprintf("%s/%s/%s", url, classname, id)
+func (sm *ServiceManager) Get(modulename, url string, id string, opts *RequestOpts) (*http.Response, error) {
+	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
 	return sm.client.MakeRestRequest("GET", fURL, *opts, true)
 }
 
-func (sm *ServiceManager) Del(classname , url string, id string, opts *RequestOpts) (*http.Response, error) {
-	fURL := fmt.Sprintf("%s/%s/%s", url, classname, id)
+func (sm *ServiceManager) Del(modulename, url string, id string, opts *RequestOpts) (*http.Response, error) {
+	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
 	if opts == nil {
 		opts = &RequestOpts{}
 	}
 	return sm.client.MakeRestRequest("DELETE", fURL, *opts, true)
 }
 
-func (sm *ServiceManager) Put(classname, url , id string, obj models.Model, opts *RequestOpts) (*http.Response, error) {
+func (sm *ServiceManager) Put(modulename, url, id string, obj models.Model, opts *RequestOpts) (*http.Response, error) {
 
-	fURL := fmt.Sprintf("%s/%s/%s", url, classname, id)
+	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
 
 	if opts == nil {
 		opts = &RequestOpts{}
 	}
 
-	err := opts.setBody(classname, obj)
+	err := opts.setBody(modulename, obj)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return sm.client.MakeRestRequest("PUT", fURL, *opts, true)
+}
+
+func (sm *ServiceManager) List(url string, opts *RequestOpts, queryParameters interface{}) (*http.Response, error) {
+
+	if opts == nil {
+		opts = &RequestOpts{}
+	}
+
+	if queryParameters != nil && opts.QueryStringParameters == nil {
+		queryParametersMap , err := StructToMap(queryParameters)
+
+		if err != nil {
+			return nil, err
+		}
+
+		opts.QueryStringParameters = queryParametersMap
+	}
+
+	return sm.client.MakeRestRequest("GET", url, *opts, true)
 }

@@ -4,23 +4,25 @@ import (
 	"encoding/json"
 )
 
-const TenantClassName = "tenant"
+const TenantModuleName = "tenant"
 
-type TenantBody struct {
-	Tenant []Tenant
+type TenantRequestParameters struct {
+	Producer string `json:"producer,omitempty"`
+	BaseRequestParameters
+}
+
+type TenantResponseBody struct {
+	Tenant []Tenant `json:"tenant"`
+	BaseResponseAttributes
 }
 
 type Tenant struct {
-	BaseAttributes
-	TenantAttributes
-}
-
-type TenantAttributes struct {
+	Id                  string                `json:"id"`
 	Name                string                `json:"name,omitempty"`
 	Description         string                `json:"description,omitempty"`
 	Producer            string                `json:"producer,omitempty"`
-	CreateAt            string                 `json:"createAt,omitempty"`
-	UpdateAt            string                 `json:"updateAt,omitempty"`
+	CreateAt            string                `json:"createAt,omitempty"`
+	UpdateAt            string                `json:"updateAt,omitempty"`
 	MulticastCapability bool                  `json:"multicastCapability,omitempty"`
 	Quota               *TenantQuota          `json:"quota,omitempty"`
 	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota,omitempty"`
@@ -45,24 +47,14 @@ type TenantResPool struct {
 	DhcpGroupIds       []string `json:"dhcpGroupIds,omitempty"`
 }
 
-func NewTenant(id string, tenantAttrs TenantAttributes) *Tenant {
-	return &Tenant{
-		BaseAttributes: BaseAttributes{
-			Id:        id,
-			ClassName: TenantClassName,
-		},
-		TenantAttributes: tenantAttrs,
-	}
-}
-
 func (tenant *Tenant) ToJson() ([]byte, error) {
 	return json.Marshal(&tenant)
 }
 
-func TenantFromContainerList(body *TenantBody, index int) *Tenant {
+func TenantFromContainerList(body *TenantResponseBody, index int) *Tenant {
 	return &body.Tenant[index]
 }
 
-func TenantFromResponse(body *TenantBody) *Tenant {
+func TenantFromResponse(body *TenantResponseBody) *Tenant {
 	return TenantFromContainerList(body, 0)
 }

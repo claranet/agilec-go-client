@@ -19,36 +19,51 @@ func TestClientAuthenticateOK(t *testing.T) {
 	//	t.Error(err)
 	//}
 
-	Tenant := models.TenantAttributes{}
-	Tenant.Name = "Outscope"
-	Tenant.Description = "Created By GO"
-	Tenant.Producer = "Default"
-	Tenant.MulticastCapability = true
-	Tenant.Quota = &models.TenantQuota{
-		LogicVasNum: 10,
-		LogicRouterNum: 5,
-		LogicSwitchNum: 6,
-	}
-	Tenant.MulticastQuota = &models.TenantMulticastQuota{
-		AclNum:     10,
-		AclRuleNum: 10,
-	}
-	Tenant.ResPool = &models.TenantResPool{
-		ExternalGatewayIds: []string{"1", "2"},
-		FabricIds:          []string{"1", "2"},
-		VmmIds:             []string{"1", "2"},
-		DhcpGroupIds:       []string{"1", "2"},
-	}
-	_, err := client.CreateTenant(u.String(), Tenant)
+	//Tenant := models.Tenant{}
+	//Tenant.Id = u.String()
+	//Tenant.Name = "Outscope-demo-001"
+	//Tenant.Description = "Created By GO"
+	//Tenant.Producer = "Default"
+	//Tenant.MulticastCapability = true
+	//Tenant.Quota = &models.TenantQuota{
+	//	LogicVasNum:    10,
+	//	LogicRouterNum: 5,
+	//	LogicSwitchNum: 6,
+	//}
+	//Tenant.MulticastQuota = &models.TenantMulticastQuota{
+	//	AclNum:     10,
+	//	AclRuleNum: 10,
+	//}
+	//Tenant.ResPool = &models.TenantResPool{
+	//	ExternalGatewayIds: []string{"1", "2"},
+	//	FabricIds:          []string{"1", "2"},
+	//	VmmIds:             []string{"1", "2"},
+	//	DhcpGroupIds:       []string{"1", "2"},
+	//}
+	////_, err := client.CreateTenant(&Tenant)
+	//
+	//Tenant.Description = "Updated FROM GOLANG"
 
-	Tenant.Description = "Updated FROM GOLANG"
-
-	_, err = client.UpdateTenant(u.String(), Tenant)
+	//_, err := client.UpdateTenant(u.String(), &Tenant)
 
 	//err := client.DeleteTenant("51c5b574-a4fa-44a9-617b-ac058674f4b7")
 
+	requestParameters := &models.TenantRequestParameters{}
+	requestParameters.PageSize = 1
+	requestParameters.PageIndex = 2
+	requestParameters.Producer = "teste"
+
+	tenants, err := client.GetTenants(requestParameters)
+
 	if err != nil {
 		t.Error(err)
+	}
+
+	fmt.Println(tenants.PageIndex)
+	for _, element := range tenants.Tenant {
+		fmt.Println(element.Name)
+		// index is the index where we are
+		// element is the element from someSlice for where we are
 	}
 
 
