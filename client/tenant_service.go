@@ -6,23 +6,28 @@ import (
 
 const TenantModuleURL = "/controller/dc/v3/tenants"
 
-// TODO Tenant Name Already Exists Error
-func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) (*models.Tenant, error) {
-	_, err := sm.Post(models.TenantModuleName, TenantModuleURL, tenant, nil)
-	return tenant, err
+func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) error {
+	_, err := sm.Post(TenantModuleURL,
+		&RequestOpts{
+			Body:     models.TenantList{
+				Tenant: []models.Tenant{*tenant},
+			},
+		})
+	return err
 }
 
 func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 	var response models.TenantResponseBody
-	opts := &RequestOpts{}
-	opts.JSONResponse = &response
 
-	_, err := sm.Get(models.TenantModuleName, TenantModuleURL, id, opts)
+	_, err := sm.Get(models.TenantModuleName, TenantModuleURL, id, &RequestOpts{
+		Response: &response,
+	})
+
 	if err != nil {
 		return nil, err
 	}
-	tenant := models.TenantFromResponse(opts.JSONResponse.(*models.TenantResponseBody))
-	return tenant, nil
+
+	return &response.Tenant[0], nil
 }
 
 func (sm *ServiceManager) DeleteTenant(id string) error {
@@ -30,18 +35,21 @@ func (sm *ServiceManager) DeleteTenant(id string) error {
 	return err
 }
 
-func (sm *ServiceManager) UpdateTenant(id string, tenant *models.Tenant) (*models.Tenant, error) {
-	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, id, tenant, nil)
-	return tenant, err
+func (sm *ServiceManager) UpdateTenant(id string, tenant *models.Tenant) error {
+	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, id, &RequestOpts{
+		Body:  models.TenantList{
+			Tenant: []models.Tenant{*tenant},
+		}})
+	return err
 }
 
-func (sm *ServiceManager) GetTenants(queryParmeters *models.TenantRequestParameters) (*models.TenantResponseBody, error) {
+func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) (*models.TenantResponseBody, error) {
 	var response models.TenantResponseBody
-	opts := &RequestOpts{}
-	opts.JSONResponse = &response
 
-	_, err := sm.List(TenantModuleURL, opts, queryParmeters)
-	tenantResponse := opts.JSONResponse.(*models.TenantResponseBody)
+	_, err := sm.List(TenantModuleURL, &RequestOpts{
+		QueryString: queryParameters,
+		Response: &response,
+	})
 
-	return tenantResponse, err
+	return &response, err
 }

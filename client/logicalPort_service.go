@@ -1,9 +1,5 @@
 package client
 
-import (
-	"github.com/outscope-solutions/acdn-go-client/models"
-)
-
 const LogicalPortModuleURL = "/controller/dc/v3/logicnetwork/ports"
 
 //func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) (*models.Tenant, error) {
@@ -34,14 +30,14 @@ const LogicalPortModuleURL = "/controller/dc/v3/logicnetwork/ports"
 //	return tenant, err
 //}
 
-func (sm *ServiceManager) GetLogicalPorts(queryParmeters *models.LogicalPortListOpts) (*models.LogicalPortResponseBody, error) {
-	var response models.LogicalPortResponseBody
-	opts := &RequestOpts{}
-	opts.JSONResponse = &response
-
-	_, err := sm.List(LogicalPortModuleURL, opts, queryParmeters)
-	logicalPortResponse := opts.JSONResponse.(*models.LogicalPortResponseBody)
-
-	return logicalPortResponse, err
-}
-
+//func (sm *ServiceManager) GetLogicalPorts(queryParmeters *models.LogicalPortListOpts) (*models.LogicalPortResponseBody, error) {
+//	var response models.LogicalPortResponseBody
+//	opts := &RequestOpts{}
+//	opts.JSONResponse = &response
+//
+//	_, err := sm.List(LogicalPortModuleURL, opts, queryParmeters)
+//	logicalPortResponse := opts.JSONResponse.(*models.LogicalPortResponseBody)
+//
+//	return logicalPortResponse, err
+//}
+//

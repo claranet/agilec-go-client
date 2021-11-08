@@ -9,7 +9,7 @@ const LogicalPortsModuleName = "port"
 type LogicalPortListOpts struct {
 	Producer      string `json:"producer,omitempty"`
 	LogicSwitchId string `json:"logicSwitchId,omitempty"`
-	BaseRequestParameters
+	//BaseRequestParameters
 }
 
 type LogicalPortResponseBody struct {
@@ -62,11 +62,4 @@ type LogicalPortDevicePortDto struct {
 
 func (port *LogicalPort) ToJson() ([]byte, error) {
 	return json.Marshal(&port)
-}
-
-func (response *LogicalPortResponseBody) Next() {
-	//requestParameters := &models.LogicalPortRequestParameters{}
-	//requestParameters.PageIndex = requestParameters.PageIndex + 1
-	//sm.client.GetLogicalPorts(requestParameters)
-	return
 }
