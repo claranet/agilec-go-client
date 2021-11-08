@@ -75,11 +75,6 @@ func TestClientAuthenticateOK(t *testing.T) {
 	//fmt.Println("-----------")
 	//.previous()
 
-	//for _, element := range logicalPorts.Port {
-	//	fmt.Println(element.Name)
-	//}
-
-
 	//tenant, _ := client.GetTenant("ed0cb9aa-df73-4bd3-a71b-893c248e2c5c")
 	//fmt.Println(tenant.MulticastCapability)
 
