@@ -2,14 +2,16 @@ package client
 
 import (
 	"github.com/outscope-solutions/acdn-go-client/models"
+	log "github.com/sirupsen/logrus"
 )
 
 const TenantModuleURL = "/controller/dc/v3/tenants"
 
 func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) error {
+	log.Debug("Begin Create Tenant")
 	_, err := sm.Post(TenantModuleURL,
 		&RequestOpts{
-			Body:     models.TenantList{
+			Body: models.TenantList{
 				Tenant: []models.Tenant{*tenant},
 			},
 		})
@@ -17,6 +19,7 @@ func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) error {
 }
 
 func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
+	log.Debug("Begin Get Tenant")
 	var response models.TenantResponseBody
 
 	_, err := sm.Get(models.TenantModuleName, TenantModuleURL, id, &RequestOpts{
@@ -31,24 +34,27 @@ func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 }
 
 func (sm *ServiceManager) DeleteTenant(id string) error {
+	log.Debug("Begin Delete Tenant")
 	_, err := sm.Del(models.TenantModuleName, TenantModuleURL, id, nil)
 	return err
 }
 
 func (sm *ServiceManager) UpdateTenant(tenant *models.Tenant) error {
+	log.Debug("Begin Update Tenant")
 	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{
-		Body:  models.TenantList{
+		Body: models.TenantList{
 			Tenant: []models.Tenant{*tenant},
 		}})
 	return err
 }
 
 func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) (*models.TenantResponseBody, error) {
+	log.Debug("Begin Get Tenants")
 	var response models.TenantResponseBody
 
 	_, err := sm.List(TenantModuleURL, &RequestOpts{
 		QueryString: queryParameters,
-		Response: &response,
+		Response:    &response,
 	})
 
 	return &response, err

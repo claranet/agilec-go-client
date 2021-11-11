@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// TODO Make Request without Required Parameters and also parameters with wrong type. The Response is Diferent
+// TODO Make Request without Required Parameters (Plain Text Response) and also parameters with wrong type. The Response is Diferent
 func GetTenant() *models.Tenant {
 	u, _ := uuid.NewV4()
 	fmt.Printf("Tenant ID Generated: %s\n", u.String())
@@ -38,7 +38,7 @@ func GetTenant() *models.Tenant {
 	return &Tenant
 }
 
-func TestCreateTenant (t *testing.T) {
+func TestCreateTenant(t *testing.T) {
 	tenant := GetTenant()
 	defer DeleteTenant(tenant.Id)
 	client := helper.GetClient()
@@ -46,7 +46,7 @@ func TestCreateTenant (t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCreateTenantDuplicate (t *testing.T) {
+func TestCreateTenantDuplicate(t *testing.T) {
 	tenant := GetTenant()
 	defer DeleteTenant(tenant.Id)
 	client := helper.GetClient()
@@ -58,7 +58,7 @@ func TestCreateTenantDuplicate (t *testing.T) {
 	}
 }
 
-func TestCreateTenantInvalidID (t *testing.T) {
+func TestCreateTenantInvalidID(t *testing.T) {
 	tenant := GetTenant()
 	tenant.Id = "dummy"
 	client := helper.GetClient()
@@ -68,18 +68,17 @@ func TestCreateTenantInvalidID (t *testing.T) {
 	}
 }
 
+func TestCreateTenantWithoutID(t *testing.T) {
+	tenant := GetTenant()
+	tenant.Id = ""
+	client := helper.GetClient()
+	err := client.CreateTenant(tenant)
+	if assert.NotNil(t, err) {
+		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: size must be between 1 and 36 (path = TenantRestful.createTenant.arg0.tenant[0].id, invalidValue = ) , Error Code:  \n", err)
+	}
+}
 
-//func TestCreateTenantWithoutID (t *testing.T) {  // Make request error for type conversion
-//	tenant := GetTenant()
-//	tenant.Id = ""
-//	client := helper.GetClient()
-//	err := client.CreateTenant(tenant)
-//	if assert.NotNil(t, err) {
-//		assert.EqualError(t, err, "The tenant id already exist.", err)
-//	}
-//}
-
-func TestUpdateTenant (t *testing.T) {
+func TestUpdateTenant(t *testing.T) {
 	tenant := GetTenant()
 	defer DeleteTenant(tenant.Id)
 	client := helper.GetClient()
@@ -89,7 +88,7 @@ func TestUpdateTenant (t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestGetTenants (t *testing.T) {
+func TestGetTenants(t *testing.T) {
 	client := helper.GetClient()
 	queryParameters := &models.TenantRequestOpts{}
 	queryParameters.Producer = "default"
@@ -99,7 +98,7 @@ func TestGetTenants (t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDeleteTenant (t *testing.T) {
+func TestDeleteTenant(t *testing.T) {
 	tenant := GetTenant()
 	client := helper.GetClient()
 	err := client.DeleteTenant(tenant.Id)

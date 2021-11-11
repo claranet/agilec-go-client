@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"time"
+	log "github.com/sirupsen/logrus"
 )
 
 const authPayload = `{
@@ -43,18 +44,21 @@ func (au *Auth) IsValid() bool {
 }
 
 func (client *Client) InjectAuthenticationHeader(req *resty.Request) error {
-	//log.Printf("[DEBUG] Begin Injection")
+	log.Debug("Begin Authentication Header Injection")
 	client.l.Lock()
 	defer client.l.Unlock()
 	if client.password != "" {
 		if client.AuthToken == nil || !client.AuthToken.IsValid() {
+			log.Debug("Needs (Re-)Authentication")
 			err := client.Authenticate()
 			if err != nil {
 				return err
 			}
 		}
+		log.Debug("Authentication Header Injected")
 		req.Header.Add("X-ACCESS-TOKEN", client.AuthToken.Token)
 		return nil
 	}
+	log.Error("Password is missing")
 	return fmt.Errorf("password is missing")
 }
