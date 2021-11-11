@@ -32,6 +32,6 @@ Use that client object to call the service methods to perform the CRUD operation
 Example,
 
 ```golang
-    client.CreateTenant(tenantAttributesStruct)
-    # tenantAttributesStruct is struct present in models/tenant.go
+client.CreateTenant(Tenant)
+# Tenant is struct present in models/tenant.go
 ```
