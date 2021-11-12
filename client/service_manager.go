@@ -43,7 +43,7 @@ type ErrorResponse struct {
 
 func (err *ErrorResponse) Error() string {
 	return fmt.Sprintf(
-		"HTTP Error response status code %d when accessing [%s %s]. Error Message: %s , Error Code: %s \n",
+		"HTTP Error response status code %d when accessing [%s %s]. Error Message: %s - Error Code: %s",
 		err.HttpStatusCode, err.Method, err.URL, err.ErrorMessage, err.ErrorCode,
 	)
 }
@@ -57,13 +57,13 @@ func NewServiceManager(client *Client) *ServiceManager {
 
 func (sm *ServiceManager) Post(url string, opts *RequestOpts) (*resty.Response, error) {
 	log.Debug("Creating Post Request")
-	return sm.client.Request("Post", url, *opts, true)
+	return sm.client.Request("Post", url, *opts)
 }
 
 func (sm *ServiceManager) Get(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
 	log.Debug("Creating Get Request")
 	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
-	return sm.client.Request("Get", fURL, *opts, true)
+	return sm.client.Request("Get", fURL, *opts)
 }
 
 func (sm *ServiceManager) Del(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
@@ -73,16 +73,16 @@ func (sm *ServiceManager) Del(modulename, url, id string, opts *RequestOpts) (*r
 	if opts != nil {
 		reqOpts = opts
 	}
-	return sm.client.Request("Delete", fURL, *reqOpts, true)
+	return sm.client.Request("Delete", fURL, *reqOpts)
 }
 
 func (sm *ServiceManager) Put(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
 	log.Debug("Creating Put Request")
 	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
-	return sm.client.Request("Put", fURL, *opts, true)
+	return sm.client.Request("Put", fURL, *opts)
 }
 
 func (sm *ServiceManager) List(url string, opts *RequestOpts) (*resty.Response, error) {
 	log.Debug("Creating Get Request")
-	return sm.client.Request("Get", url, *opts, true)
+	return sm.client.Request("Get", url, *opts)
 }

@@ -9,15 +9,15 @@ import (
 	"testing"
 )
 
-// TODO Make Request without Required Parameters (Plain Text Response) and also parameters with wrong type. The Response is Diferent
-func GetTenant() *models.Tenant {
+func GetTenantAttributes() (string, string, *models.TenantAttributes) {
 	u, _ := uuid.NewV4()
 	fmt.Printf("Tenant ID Generated: %s\n", u.String())
-	Tenant := models.Tenant{}
-	Tenant.Id = u.String()
-	Tenant.Name = "OUTSCOPE-GO-TESTS-001"
+	Id := u.String()
+	Name := "OUTSCOPE-GO-TESTS-001"
+
+	Tenant := models.TenantAttributes{}
 	Tenant.Description = "Created By GO"
-	Tenant.Producer = "Default"
+	Tenant.Producer = "GOLANG"
 	Tenant.MulticastCapability = true
 	Tenant.Quota = &models.TenantQuota{
 		LogicVasNum:    10,
@@ -35,74 +35,101 @@ func GetTenant() *models.Tenant {
 		DhcpGroupIds:       []string{"1", "2"},
 	}
 
-	return &Tenant
+	return Id, Name, &Tenant
 }
 
 func TestCreateTenant(t *testing.T) {
-	tenant := GetTenant()
-	defer DeleteTenant(tenant.Id)
+	id, name, tenantAttr := GetTenantAttributes()
+	defer DeleteTenant(id)
 	client := helper.GetClient()
-	err := client.CreateTenant(tenant)
+	tenant, err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
+	assert.Equal(t, id, tenant.Id)
+	assert.Equal(t, name, tenant.Name)
 }
 
 func TestCreateTenantDuplicate(t *testing.T) {
-	tenant := GetTenant()
-	defer DeleteTenant(tenant.Id)
+	id, name, tenantAttr := GetTenantAttributes()
+	defer DeleteTenant(id)
 	client := helper.GetClient()
-	err := client.CreateTenant(tenant)
+	_, err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	err = client.CreateTenant(tenant)
+	_ , err = client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
-		assert.EqualError(t, err, "The tenant id already exist.", err)
+		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: The tenant id already exist. - Error Code: ", err)
 	}
 }
 
 func TestCreateTenantInvalidID(t *testing.T) {
-	tenant := GetTenant()
-	tenant.Id = "dummy"
+	_, name, tenantAttr := GetTenantAttributes()
+	id := "dummy"
 	client := helper.GetClient()
-	err := client.CreateTenant(tenant)
+	_, err := client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
-		assert.EqualError(t, err, "Invalid UUID format.", err)
-	}
-}
-
-func TestCreateTenantWithoutID(t *testing.T) {
-	tenant := GetTenant()
-	tenant.Id = ""
-	client := helper.GetClient()
-	err := client.CreateTenant(tenant)
-	if assert.NotNil(t, err) {
-		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: size must be between 1 and 36 (path = TenantRestful.createTenant.arg0.tenant[0].id, invalidValue = ) , Error Code:  \n", err)
+		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: Invalid UUID format. - Error Code: ", err)
 	}
 }
 
 func TestUpdateTenant(t *testing.T) {
-	tenant := GetTenant()
-	defer DeleteTenant(tenant.Id)
+	id, name, tenantAttr := GetTenantAttributes()
+	description :=  "Updated From GO"
+	defer DeleteTenant(id)
 	client := helper.GetClient()
-	err := client.CreateTenant(tenant)
-	tenant.Description = "Updated From GO"
-	err = client.UpdateTenant(tenant)
+	_, err := client.CreateTenant(id, name, tenantAttr)
+	tenantAttr.Description = description
+	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
+	assert.Equal(t, description, tenant.Description)
+	getTenant := GetTenant(id)
+	assert.Equal(t, getTenant.Description, tenant.Description)
 }
 
-func TestGetTenants(t *testing.T) {
+func TestGetTenant(t *testing.T) {
+	id, name, tenantAttr := GetTenantAttributes()
+	defer DeleteTenant(id)
 	client := helper.GetClient()
+	_, err := client.CreateTenant(id, name, tenantAttr)
+	tenant, err := client.GetTenant(id)
+	assert.Nil(t, err)
+	assert.Equal(t, id, tenant.Id, id)
+	assert.Equal(t, name, tenant.Name, name)
+	assert.Equal(t, tenantAttr.Description, tenant.Description )
+	assert.Equal(t, tenantAttr.Producer, tenant.Producer)
+	assert.Equal(t, tenantAttr.MulticastCapability, tenant.MulticastCapability)
+	assert.Equal(t, tenantAttr.Quota, tenant.Quota)
+	//assert.Equal(t, tenantAttr.ResPool, tenant.ResPool)
+}
+
+func TestListTenants(t *testing.T) {
+	id, name, tenantAttr := GetTenantAttributes()
+	client := helper.GetClient()
+	defer DeleteTenant(id)
+	_, err := client.CreateTenant(id, name, tenantAttr)
+	assert.Nil(t, err)
 	queryParameters := &models.TenantRequestOpts{}
-	queryParameters.Producer = "default"
-	queryParameters.PageSize = 2
+	queryParameters.PageSize = 3
 	response, err := client.GetTenants(queryParameters)
-	assert.Greater(t, response.TotalNum, int64(1))
+	assert.Equal(t, 3, len(*response))
+	assert.Nil(t, err)
+	queryParameters.Producer = tenantAttr.Producer
+	queryParameters.PageSize = 3
+	response, err = client.GetTenants(queryParameters)
+	assert.Equal(t, 1, len(*response))
+	assert.Equal(t, tenantAttr.Producer, (*response)[0].Producer)
 	assert.Nil(t, err)
 }
 
 func TestDeleteTenant(t *testing.T) {
-	tenant := GetTenant()
+	id, _, _ := GetTenantAttributes()
 	client := helper.GetClient()
-	err := client.DeleteTenant(tenant.Id)
+	err := client.DeleteTenant(id)
 	assert.Nil(t, err)
+}
+
+func GetTenant(id string) *models.Tenant {
+	client := helper.GetClient()
+	tenant, _ := client.GetTenant(id)
+	return tenant
 }
 
 func DeleteTenant(id string) {

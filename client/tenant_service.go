@@ -7,20 +7,21 @@ import (
 
 const TenantModuleURL = "/controller/dc/v3/tenants"
 
-func (sm *ServiceManager) CreateTenant(tenant *models.Tenant) error {
+func (sm *ServiceManager) CreateTenant(id, name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
 	log.Debug("Begin Create Tenant")
+	tenant := models.NewTenant(id, name, *tenantAttr)
 	_, err := sm.Post(TenantModuleURL,
 		&RequestOpts{
 			Body: models.TenantList{
-				Tenant: []models.Tenant{*tenant},
+				Tenants: []models.Tenant{*tenant},
 			},
 		})
-	return err
+	return tenant, err
 }
 
 func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 	log.Debug("Begin Get Tenant")
-	var response models.TenantResponseBody
+	var response models.TenantResponse
 
 	_, err := sm.Get(models.TenantModuleName, TenantModuleURL, id, &RequestOpts{
 		Response: &response,
@@ -30,7 +31,7 @@ func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 		return nil, err
 	}
 
-	return &response.Tenant[0], nil
+	return &response.Tenants[0], nil
 }
 
 func (sm *ServiceManager) DeleteTenant(id string) error {
@@ -39,23 +40,25 @@ func (sm *ServiceManager) DeleteTenant(id string) error {
 	return err
 }
 
-func (sm *ServiceManager) UpdateTenant(tenant *models.Tenant) error {
+func (sm *ServiceManager) UpdateTenant(id ,name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
 	log.Debug("Begin Update Tenant")
+	tenant := models.NewTenant(id, name, *tenantAttr)
 	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{
 		Body: models.TenantList{
-			Tenant: []models.Tenant{*tenant},
+			Tenants: []models.Tenant{*tenant},
 		}})
-	return err
+	return tenant, err
 }
 
-func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) (*models.TenantResponseBody, error) {
+// TODO Return []Tenants
+func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) (*[]models.Tenant, error) {
 	log.Debug("Begin Get Tenants")
-	var response models.TenantResponseBody
+	var response models.TenantResponse
 
 	_, err := sm.List(TenantModuleURL, &RequestOpts{
 		QueryString: queryParameters,
 		Response:    &response,
 	})
 
-	return &response, err
+	return &response.Tenants, err
 }

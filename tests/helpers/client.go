@@ -15,7 +15,7 @@ func GetClient() *client.Client {
 		client.RetryCount(0),
 		client.RetryWaitTimeInSeconds(10),
 		client.RetryMaxWaitTimeSeconds(20),
-		client.LogLevel(6))
+		client.LogLevel(0))
 }
 
 func GetFakeClient(url, username, password string) *client.Client {

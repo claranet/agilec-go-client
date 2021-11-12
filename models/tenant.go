@@ -3,22 +3,26 @@ package models
 const TenantModuleName = "tenant"
 
 type TenantRequestOpts struct {
-	Producer string `json:"producer,omitempty"`
+	Producer string `url:"producer,omitempty"`
 	BaseRequestOpts
 }
 
-type TenantResponseBody struct {
+type TenantResponse struct {
 	TenantList
-	BaseResponseAttributes
+	//BaseResponseAttributes
 }
 
 type TenantList struct {
-	Tenant []Tenant `json:"tenant"`
+	Tenants []Tenant `json:"tenant"`
 }
 
 type Tenant struct {
 	Id                  string                `json:"id"`
-	Name                string                `json:"name,omitempty"`
+	Name                string                `json:"name"`
+	TenantAttributes
+}
+
+type TenantAttributes struct {
 	Description         string                `json:"description,omitempty"`
 	Producer            string                `json:"producer,omitempty"`
 	CreateAt            string                `json:"createAt,omitempty"`
@@ -45,4 +49,12 @@ type TenantResPool struct {
 	FabricIds          []string `json:"fabricIds,omitempty"`
 	VmmIds             []string `json:"vmmIds,omitempty"`
 	DhcpGroupIds       []string `json:"dhcpGroupIds,omitempty"`
+}
+
+func NewTenant(id, name string, tenantAttr TenantAttributes) *Tenant {
+	return &Tenant{
+		Id: id,
+		Name: name,
+		TenantAttributes: tenantAttr,
+	}
 }

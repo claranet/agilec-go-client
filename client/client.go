@@ -9,12 +9,12 @@ import (
 	"fmt"
 	resty "github.com/go-resty/resty/v2"
 	"github.com/google/go-querystring/query"
+	log "github.com/sirupsen/logrus"
 	"net/url"
 	"reflect"
 	"strings"
 	"sync"
 	"time"
-	log "github.com/sirupsen/logrus"
 )
 
 // Client is the main entry point
@@ -124,6 +124,7 @@ func initClient(clientUrl, username string, options ...Option) *Client {
 			SetRetryMaxWaitTime(time.Duration(client.timeout) * time.Second)
 
 		client.httpClient.OnError(func(req *resty.Request, err error) {
+			fmt.Println(err)
 			log.Fatal("Connection Timeout to Huawei Agile Controller")
 		})
 	}
@@ -168,16 +169,15 @@ func NewClient(clientUrl, username string, options ...Option) *Client {
 	return newClientImpl
 }
 
-func (c *Client) Request(method, url string, opts RequestOpts, authenticated bool) (*resty.Response, error) {
+func (c *Client) Request(method, url string, opts RequestOpts) (*resty.Response, error) {
 	log.Debug("Begin New Request")
 	request := c.httpClient.R().ForceContentType("application/json")
 	request.SetError(&ErrorResponse{})
-	if authenticated {
-		log.Debug("Request Needs authentication")
-		err := c.InjectAuthenticationHeader(request)
-		if err != nil {
-			return nil, err
-		}
+
+	log.Debug("Request Needs authentication")
+	err := c.InjectAuthenticationHeader(request)
+	if err != nil {
+		return nil, err
 	}
 
 	if opts.QueryString != nil {
@@ -264,6 +264,7 @@ func CheckForErrors(response *resty.Response, method, url string) *ErrorResponse
 		URL:            url,
 		HttpStatusCode: response.StatusCode(),
 	}
+
 	if response.Header().Get("Content-Type") == "text/plain" {
 		error.ErrorMessage = response.String()
 	} else {
@@ -275,7 +276,7 @@ func CheckForErrors(response *resty.Response, method, url string) *ErrorResponse
 		if strings.Contains(response.String(), "errmsg") {
 			error.ErrorMessage = msgErrorTemplate.(map[string]string)["errmsg"]
 		} else {
-			error.ErrorMessage = msgErrorTemplate.(map[string]map[string][1]map[string]string)["errors"]["error"][0]["error-message"]
+			error.ErrorMessage = msgErrorTemplate.(map[string]interface{})["errors"].(map[string]interface{})["error"].([]interface{})[0].(map[string]interface{})["error-message"].(string)
 		}
 	}
 	return error
