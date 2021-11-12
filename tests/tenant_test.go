@@ -3,8 +3,8 @@ package tests
 import (
 	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
-	"github.com/outscope-solutions/acdn-go-client/models"
-	helper "github.com/outscope-solutions/acdn-go-client/tests/helpers"
+	"github.com/outscope-solutions/acdcn-go-client/models"
+	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
