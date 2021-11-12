@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/outscope-solutions/acdn-go-client/models"
+	"github.com/outscope-solutions/acdcn-go-client/models"
 	log "github.com/sirupsen/logrus"
 )
 
