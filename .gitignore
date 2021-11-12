@@ -13,3 +13,12 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# IDE Folders
+.idea/
+
+# GoLang Files
+go.sum
+
+# Environment Files
+.env
