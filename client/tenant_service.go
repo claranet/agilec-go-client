@@ -40,7 +40,7 @@ func (sm *ServiceManager) DeleteTenant(id string) error {
 	return err
 }
 
-func (sm *ServiceManager) UpdateTenant(id ,name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
+func (sm *ServiceManager) UpdateTenant(id, name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
 	log.Debug("Begin Update Tenant")
 	tenant := models.NewTenant(id, name, *tenantAttr)
 	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{

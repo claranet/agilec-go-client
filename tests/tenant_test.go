@@ -54,7 +54,7 @@ func TestCreateTenantDuplicate(t *testing.T) {
 	client := helper.GetClient()
 	_, err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	_ , err = client.CreateTenant(id, name, tenantAttr)
+	_, err = client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
 		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: The tenant id already exist. - Error Code: ", err)
 	}
@@ -72,7 +72,7 @@ func TestCreateTenantInvalidID(t *testing.T) {
 
 func TestUpdateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
-	description :=  "Updated From GO"
+	description := "Updated From GO"
 	defer DeleteTenant(id)
 	client := helper.GetClient()
 	_, err := client.CreateTenant(id, name, tenantAttr)
@@ -93,7 +93,7 @@ func TestGetTenant(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, id, tenant.Id, id)
 	assert.Equal(t, name, tenant.Name, name)
-	assert.Equal(t, tenantAttr.Description, tenant.Description )
+	assert.Equal(t, tenantAttr.Description, tenant.Description)
 	assert.Equal(t, tenantAttr.Producer, tenant.Producer)
 	assert.Equal(t, tenantAttr.MulticastCapability, tenant.MulticastCapability)
 	assert.Equal(t, tenantAttr.Quota, tenant.Quota)

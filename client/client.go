@@ -19,19 +19,19 @@ import (
 
 // Client is the main entry point
 type Client struct {
-	BaseURL          string
-	insecure         bool
-	httpClient       *resty.Client
-	AuthToken        *Auth
-	l                sync.Mutex
-	username         string
-	password         string
-	timeout          int
-	retryCount       int
-	retryWaitTime    int
-	retryMaxWaitTime int
+	BaseURL            string
+	insecure           bool
+	httpClient         *resty.Client
+	AuthToken          *Auth
+	l                  sync.Mutex
+	username           string
+	password           string
+	timeout            int
+	retryCount         int
+	retryWaitTime      int
+	retryMaxWaitTime   int
 	skipLoggingPayload bool
-	logLevel int
+	logLevel           int
 	*ServiceManager
 }
 
@@ -39,12 +39,6 @@ type Client struct {
 var clientImpl *Client
 
 type Option func(*Client)
-
-func Password(password string) Option {
-	return func(client *Client) {
-		client.password = password
-	}
-}
 
 func TimeoutInSeconds(timeout int) Option {
 	return func(client *Client) {
@@ -88,7 +82,7 @@ func LogLevel(level int) Option {
 	}
 }
 
-func initClient(clientUrl, username string, options ...Option) *Client {
+func initClient(clientUrl, username, password string, options ...Option) *Client {
 	//bUrl, err := url.Parse(clientUrl)
 	//if err != nil {
 	//	// cannot move forward if url is undefined
@@ -98,6 +92,7 @@ func initClient(clientUrl, username string, options ...Option) *Client {
 	client := &Client{
 		BaseURL:  clientUrl,
 		username: username,
+		password: password,
 	}
 
 	for _, option := range options {
@@ -129,16 +124,15 @@ func initClient(clientUrl, username string, options ...Option) *Client {
 		})
 	}
 
-
 	client.ServiceManager = NewServiceManager(client)
 	return client
 }
 
 // GetClient returns a singleton
-func GetClient(clientUrl, username string, options ...Option) *Client {
+func GetClient(clientUrl, username, password string, options ...Option) *Client {
 
 	if clientImpl == nil {
-		clientImpl = initClient(clientUrl, username, options...)
+		clientImpl = initClient(clientUrl, username, password, options...)
 	} else {
 		// making sure it is the same client
 		//bUrl, err := url.Parse(clientUrl)
@@ -147,14 +141,14 @@ func GetClient(clientUrl, username string, options ...Option) *Client {
 		//	log.Fatal(err)
 		//}
 		if clientUrl != clientImpl.BaseURL {
-			clientImpl = initClient(clientUrl, username, options...)
+			clientImpl = initClient(clientUrl, username, password, options...)
 		}
 	}
 	return clientImpl
 }
 
 // NewClient returns a new Instance of the client - allowing for simultaneous connections to the same APIC
-func NewClient(clientUrl, username string, options ...Option) *Client {
+func NewClient(clientUrl, username, password string, options ...Option) *Client {
 	// making sure it is the same client
 	_, err := url.Parse(clientUrl)
 	if err != nil {
@@ -164,7 +158,7 @@ func NewClient(clientUrl, username string, options ...Option) *Client {
 
 	// initClient always returns a new struct, so always create a new pointer to allow for
 	// multiple object instances
-	newClientImpl := initClient(clientUrl, username, options...)
+	newClientImpl := initClient(clientUrl, username, password, options...)
 
 	return newClientImpl
 }

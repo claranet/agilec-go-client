@@ -7,7 +7,7 @@ This repository contains the golang client SDK to interact with HUAWEI Agile Con
 Use `go get` to retrieve the SDK to add it to your `GOPATH` workspace, or project's Go module dependencies.
 
 ```sh
-$go get github.com/outscope-solutions/acdcn-go-clien
+$go get github.com/outscope-solutions/acdcn-go-client
 ```
 
 ## Overview ##

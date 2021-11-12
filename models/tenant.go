@@ -17,8 +17,8 @@ type TenantList struct {
 }
 
 type Tenant struct {
-	Id                  string                `json:"id"`
-	Name                string                `json:"name"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
 	TenantAttributes
 }
 
@@ -53,8 +53,8 @@ type TenantResPool struct {
 
 func NewTenant(id, name string, tenantAttr TenantAttributes) *Tenant {
 	return &Tenant{
-		Id: id,
-		Name: name,
+		Id:               id,
+		Name:             name,
 		TenantAttributes: tenantAttr,
 	}
 }

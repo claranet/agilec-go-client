@@ -3,8 +3,8 @@ package client
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
-	"time"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 const authPayload = `{

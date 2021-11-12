@@ -9,7 +9,7 @@ func GetClient() *client.Client {
 	return client.GetClient(
 		os.Getenv("AC_HOST"),
 		os.Getenv("AC_USERNAME"),
-		client.Password(os.Getenv("AC_PASSWORD")),
+		os.Getenv("AC_PASSWORD"),
 		client.Insecure(true),
 		client.TimeoutInSeconds(10),
 		client.RetryCount(0),
@@ -35,5 +35,5 @@ func GetFakeClient(url, username, password string) *client.Client {
 		pass = url
 	}
 
-	return client.NewClient(baseUrl, user, client.Password(pass), client.Insecure(true), client.LogLevel(6))
+	return client.NewClient(baseUrl, user, pass, client.Insecure(true), client.LogLevel(6))
 }
