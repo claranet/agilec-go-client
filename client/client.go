@@ -166,7 +166,6 @@ func NewClient(clientUrl, username, password string, options ...Option) *Client 
 func (c *Client) Request(method, url string, opts RequestOpts) (*resty.Response, error) {
 	log.Debug("Begin New Request")
 	request := c.httpClient.R().ForceContentType("application/json")
-	request.SetError(&ErrorResponse{})
 
 	log.Debug("Request Needs authentication")
 	err := c.InjectAuthenticationHeader(request)
@@ -267,6 +266,7 @@ func CheckForErrors(response *resty.Response, method, url string) *ErrorResponse
 		if err != nil {
 			error.ErrorMessage = "Error Message Not supported. Please open an Issue"
 		}
+		// TODO Add Generic Error if the response isn't in expected formats
 		if strings.Contains(response.String(), "errmsg") {
 			error.ErrorMessage = msgErrorTemplate.(map[string]string)["errmsg"]
 		} else {

@@ -42,15 +42,23 @@ func (sm *ServiceManager) DeleteTenant(id string) error {
 
 func (sm *ServiceManager) UpdateTenant(id, name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
 	log.Debug("Begin Update Tenant")
+	var response models.TenantResponse
 	tenant := models.NewTenant(id, name, *tenantAttr)
+
 	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{
 		Body: models.TenantList{
 			Tenants: []models.Tenant{*tenant},
-		}})
-	return tenant, err
+		},
+		Response: &response,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.Tenants[0], nil
 }
 
-// TODO Return []Tenants
 func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) (*[]models.Tenant, error) {
 	log.Debug("Begin Get Tenants")
 	var response models.TenantResponse

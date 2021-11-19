@@ -9,7 +9,6 @@ type TenantRequestOpts struct {
 
 type TenantResponse struct {
 	TenantList
-	//BaseResponseAttributes
 }
 
 type TenantList struct {
@@ -57,4 +56,8 @@ func NewTenant(id, name string, tenantAttr TenantAttributes) *Tenant {
 		Name:             name,
 		TenantAttributes: tenantAttr,
 	}
+}
+
+func (resp *TenantResponse) Count() int {
+	return len(resp.Tenants)
 }

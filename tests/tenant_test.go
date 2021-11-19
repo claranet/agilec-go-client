@@ -3,6 +3,7 @@ package tests
 import (
 	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
+	acdcn "github.com/outscope-solutions/acdcn-go-client/client"
 	"github.com/outscope-solutions/acdcn-go-client/models"
 	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
@@ -55,8 +56,18 @@ func TestCreateTenantDuplicate(t *testing.T) {
 	_, err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	_, err = client.CreateTenant(id, name, tenantAttr)
+
 	if assert.NotNil(t, err) {
-		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: The tenant id already exist. - Error Code: ", err)
+		response, ok := err.(*acdcn.ErrorResponse)
+
+		if !ok {
+			t.Error("Wrong Error Response")
+		}
+
+		assert.Equal(t,"The tenant id already exist.", response.ErrorMessage)
+		assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
+		assert.Equal(t,400, response.HttpStatusCode)
+		assert.Equal(t,"Post", response.Method)
 	}
 }
 
@@ -66,22 +77,50 @@ func TestCreateTenantInvalidID(t *testing.T) {
 	client := helper.GetClient()
 	_, err := client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
-		assert.EqualError(t, err, "HTTP Error response status code 400 when accessing [Post /controller/dc/v3/tenants]. Error Message: Invalid UUID format. - Error Code: ", err)
+		if assert.NotNil(t, err) {
+			response, ok := err.(*acdcn.ErrorResponse)
+
+			if !ok {
+				t.Error("Wrong Error Response")
+			}
+
+			assert.Equal(t,"Invalid UUID format.", response.ErrorMessage)
+			assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
+			assert.Equal(t,400, response.HttpStatusCode)
+			assert.Equal(t,"Post", response.Method)
+		}
 	}
 }
 
 func TestUpdateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
-	description := "Updated From GO"
 	defer DeleteTenant(id)
 	client := helper.GetClient()
 	_, err := client.CreateTenant(id, name, tenantAttr)
+	description := "Updated From GO"
 	tenantAttr.Description = description
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	assert.Equal(t, description, tenant.Description)
 	getTenant := GetTenant(id)
 	assert.Equal(t, getTenant.Description, tenant.Description)
+}
+
+func TestUpdateNonExistingTenant(t *testing.T) {
+	client := helper.GetClient()
+	u, _ := uuid.NewV4()
+	_, err := client.UpdateTenant(u.String(), "dummy", &models.TenantAttributes{})
+	if assert.NotNil(t, err) {
+		response, ok := err.(*acdcn.ErrorResponse)
+
+		if !ok {
+			t.Error("Wrong Error Response")
+		}
+		assert.Equal(t,"tenant not exist.", response.ErrorMessage)
+		assert.Equal(t,"/controller/dc/v3/tenants/tenant/" + u.String(), response.URL)
+		assert.Equal(t,400, response.HttpStatusCode)
+		assert.Equal(t,"Put", response.Method)
+	}
 }
 
 func TestGetTenant(t *testing.T) {
@@ -98,6 +137,23 @@ func TestGetTenant(t *testing.T) {
 	assert.Equal(t, tenantAttr.MulticastCapability, tenant.MulticastCapability)
 	assert.Equal(t, tenantAttr.Quota, tenant.Quota)
 	//assert.Equal(t, tenantAttr.ResPool, tenant.ResPool)
+}
+
+func TestGetNonExistTenant(t *testing.T) {
+	client := helper.GetClient()
+	u, _ := uuid.NewV4()
+	_, err := client.GetTenant(u.String())
+	if assert.NotNil(t, err) {
+		response, ok := err.(*acdcn.ErrorResponse)
+
+		if !ok {
+			t.Error("Wrong Error Response")
+		}
+		assert.Equal(t,"The Resource don't exists.", response.ErrorMessage)
+		assert.Equal(t,"/controller/dc/v3/tenants/tenant/" + u.String(), response.URL)
+		assert.Equal(t,0, response.HttpStatusCode)
+		assert.Equal(t,"Get", response.Method)
+	}
 }
 
 func TestListTenants(t *testing.T) {

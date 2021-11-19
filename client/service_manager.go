@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"reflect"
 )
 
 type ServiceManager struct {
@@ -35,7 +36,6 @@ type RequestOpts struct {
 
 type ErrorResponse struct {
 	ErrorMessage   string
-	ErrorCode      string
 	URL            string
 	Method         string
 	HttpStatusCode int
@@ -43,8 +43,8 @@ type ErrorResponse struct {
 
 func (err *ErrorResponse) Error() string {
 	return fmt.Sprintf(
-		"HTTP Error response status code %d when accessing [%s %s]. Error Message: %s - Error Code: %s",
-		err.HttpStatusCode, err.Method, err.URL, err.ErrorMessage, err.ErrorCode,
+		"HTTP Error response status code %d when accessing [%s %s]. Error Message: %s",
+		err.HttpStatusCode, err.Method, err.URL, err.ErrorMessage,
 	)
 }
 
@@ -63,7 +63,23 @@ func (sm *ServiceManager) Post(url string, opts *RequestOpts) (*resty.Response, 
 func (sm *ServiceManager) Get(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
 	log.Debug("Creating Get Request")
 	fURL := fmt.Sprintf("%s/%s/%s", url, modulename, id)
-	return sm.client.Request("Get", fURL, *opts)
+
+	response, err := sm.client.Request("Get", fURL, *opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if Resource Exists
+	if reflect.ValueOf(opts.Response).MethodByName("Count").Call(nil)[0].Interface().(int) == 0 {
+		return nil, &ErrorResponse{
+			Method: "Get",
+			ErrorMessage: "The Resource don't exists.",
+			URL: fURL,
+		}
+	}
+
+	return response, nil
 }
 
 func (sm *ServiceManager) Del(modulename, url, id string, opts *RequestOpts) (*resty.Response, error) {
