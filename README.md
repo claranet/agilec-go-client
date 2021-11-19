@@ -24,7 +24,7 @@ import the client in your go application and retrieve the client object by calli
 
 ```golang
 import github.com/outscope-solutions/acdcn-go-client/client
-client.GetClient("HOST", "Username", client.Password("Password"), client.Insecure(true/false))
+client.GetClient("HOST", "Username", "Password", client.Insecure(true/false))
 ```
 
 Use that client object to call the service methods to perform the CRUD operations on the model objects.

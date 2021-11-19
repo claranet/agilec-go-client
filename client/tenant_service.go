@@ -7,7 +7,7 @@ import (
 
 const TenantModuleURL = "/controller/dc/v3/tenants"
 
-func (sm *ServiceManager) CreateTenant(id, name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
+func (sm *ServiceManager) CreateTenant(id, name string, tenantAttr *models.TenantAttributes) error {
 	log.Debug("Begin Create Tenant")
 	tenant := models.NewTenant(id, name, *tenantAttr)
 	_, err := sm.Post(TenantModuleURL,
@@ -16,7 +16,7 @@ func (sm *ServiceManager) CreateTenant(id, name string, tenantAttr *models.Tenan
 				Tenants: []models.Tenant{*tenant},
 			},
 		})
-	return tenant, err
+	return err
 }
 
 func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
