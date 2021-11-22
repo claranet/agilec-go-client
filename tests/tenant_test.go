@@ -43,7 +43,9 @@ func TestCreateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(id)
 	client := helper.GetClient()
-	tenant, err := client.CreateTenant(id, name, tenantAttr)
+	err := client.CreateTenant(id, name, tenantAttr)
+	assert.Nil(t, err)
+	tenant, err := client.GetTenant(id)
 	assert.Nil(t, err)
 	assert.Equal(t, id, tenant.Id)
 	assert.Equal(t, name, tenant.Name)
@@ -53,9 +55,9 @@ func TestCreateTenantDuplicate(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(id)
 	client := helper.GetClient()
-	_, err := client.CreateTenant(id, name, tenantAttr)
+	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	_, err = client.CreateTenant(id, name, tenantAttr)
+	err = client.CreateTenant(id, name, tenantAttr)
 
 	if assert.NotNil(t, err) {
 		response, ok := err.(*acdcn.ErrorResponse)
@@ -75,7 +77,7 @@ func TestCreateTenantInvalidID(t *testing.T) {
 	_, name, tenantAttr := GetTenantAttributes()
 	id := "dummy"
 	client := helper.GetClient()
-	_, err := client.CreateTenant(id, name, tenantAttr)
+	err := client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
 		if assert.NotNil(t, err) {
 			response, ok := err.(*acdcn.ErrorResponse)
@@ -96,7 +98,7 @@ func TestUpdateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(id)
 	client := helper.GetClient()
-	_, err := client.CreateTenant(id, name, tenantAttr)
+	err := client.CreateTenant(id, name, tenantAttr)
 	description := "Updated From GO"
 	tenantAttr.Description = description
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
@@ -127,7 +129,7 @@ func TestGetTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(id)
 	client := helper.GetClient()
-	_, err := client.CreateTenant(id, name, tenantAttr)
+	err := client.CreateTenant(id, name, tenantAttr)
 	tenant, err := client.GetTenant(id)
 	assert.Nil(t, err)
 	assert.Equal(t, id, tenant.Id, id)
@@ -160,7 +162,7 @@ func TestListTenants(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	client := helper.GetClient()
 	defer DeleteTenant(id)
-	_, err := client.CreateTenant(id, name, tenantAttr)
+	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	queryParameters := &models.TenantRequestOpts{}
 	queryParameters.PageSize = 3
