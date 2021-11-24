@@ -27,20 +27,20 @@ type TenantAttributes struct {
 	CreateAt            string                `json:"createAt,omitempty"`
 	UpdateAt            string                `json:"updateAt,omitempty"`
 	MulticastCapability bool                  `json:"multicastCapability,omitempty"`
-	Quota               *TenantQuota          `json:"quota"`
-	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota"`
+	Quota               *TenantQuota          `json:"quota,omitempty"`
+	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota,omitempty"`
 	ResPool             *TenantResPool        `json:"ResPool,omitempty"`
 }
 
 type TenantQuota struct {
-	LogicVasNum    int32 `json:"logicVasNum"`
-	LogicRouterNum int32 `json:"logicRouterNum"`
-	LogicSwitchNum int32 `json:"logicSwitchNum"`
+	LogicVasNum    int32 `json:"logicVasNum,omitempty"`
+	LogicRouterNum int32 `json:"logicRouterNum,omitempty"`
+	LogicSwitchNum int32 `json:"logicSwitchNum,omitempty"`
 }
 
 type TenantMulticastQuota struct {
-	AclNum     int32 `json:"aclNum"`
-	AclRuleNum int32 `json:"aclRuleNum"`
+	AclNum     int32 `json:"aclNum,omitempty"`
+	AclRuleNum int32 `json:"aclRuleNum,omitempty"`
 }
 
 type TenantResPool struct {
