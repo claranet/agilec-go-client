@@ -12,7 +12,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/url"
 	"reflect"
-	"strings"
 	"sync"
 	"time"
 )
@@ -205,7 +204,6 @@ func (c *Client) Request(method, url string, opts RequestOpts) (*resty.Response,
 	log.Info("Send Request")
 	doRequest := reflect.ValueOf(request).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(url)})
 	response := doRequest[0].Interface().(*resty.Response)
-
 	if response.IsError() {
 		log.Error("Error occurred")
 		return nil, CheckForErrors(response, method, url)
@@ -266,12 +264,12 @@ func CheckForErrors(response *resty.Response, method, url string) *ErrorResponse
 		if err != nil {
 			error.ErrorMessage = "Error Message Not supported. Please open an Issue"
 		}
-		// TODO Add Generic Error if the response isn't in expected formats
-		if strings.Contains(response.String(), "errmsg") {
-			error.ErrorMessage = msgErrorTemplate.(map[string]string)["errmsg"]
-		} else {
-			error.ErrorMessage = msgErrorTemplate.(map[string]interface{})["errors"].(map[string]interface{})["error"].([]interface{})[0].(map[string]interface{})["error-message"].(string)
-		}
+		error.ErrorMessage = response.String()
+		//if strings.Contains(response.String(), "errmsg") {
+		//	error.ErrorMessage = msgErrorTemplate.(map[string]string)["errmsg"]
+		//} else {
+		//	error.ErrorMessage = msgErrorTemplate.(map[string]interface{})["errors"].(map[string]interface{})["error"].([]interface{})[0].(map[string]interface{})["error-message"].(string)
+		//}
 	}
 	return error
 }
