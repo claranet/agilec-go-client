@@ -31,7 +31,7 @@ func TestListFabrics(t *testing.T) {
 	queryParameters.PageSize = 3
 	queryParameters.PageIndex = 1
 	client := helper.GetClient()
-	response, err := client.GetFabrics(queryParameters)
-	assert.Equal(t, 3, len(*response))
+	response, err := client.ListFabrics(queryParameters)
+	assert.Equal(t, 3, len(response))
 	assert.Nil(t, err)
 }

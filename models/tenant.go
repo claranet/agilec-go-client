@@ -12,7 +12,7 @@ type TenantResponse struct {
 }
 
 type TenantList struct {
-	Tenants []Tenant `json:"tenant"`
+	Tenants []*Tenant `json:"tenant"`
 }
 
 type Tenant struct {

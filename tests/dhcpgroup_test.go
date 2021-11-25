@@ -29,7 +29,7 @@ func TestListDHCPGroups(t *testing.T) {
 	queryParameters.PageSize = 3
 	queryParameters.PageIndex = 1
 	client := helper.GetClient()
-	response, err := client.GetDHCPGroups(queryParameters)
-	assert.Equal(t, 0, len(*response))
+	response, err := client.ListDHCPGroups(queryParameters)
+	assert.Equal(t, 0, len(response))
 	assert.Nil(t, err)
 }

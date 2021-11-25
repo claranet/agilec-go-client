@@ -12,7 +12,7 @@ type FabricResponse struct {
 }
 
 type FabricList struct {
-	Fabrics []Fabric `json:"fabric"`
+	Fabrics []*Fabric `json:"fabric"`
 }
 
 type Fabric struct {

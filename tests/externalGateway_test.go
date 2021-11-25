@@ -28,7 +28,7 @@ func TestListExternalGateway(t *testing.T) {
 	queryParameters.PageSize = 3
 	queryParameters.PageIndex = 1
 	client := helper.GetClient()
-	response, err := client.GetExternalGateways(queryParameters)
-	assert.Equal(t, 3, len(*response))
+	response, err := client.ListExternalGateways(queryParameters)
+	assert.Equal(t, 3, len(response))
 	assert.Nil(t, err)
 }

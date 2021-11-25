@@ -19,10 +19,10 @@ func (sm *ServiceManager) GetExternalGateway(id string) (*models.ExternalGateway
 		return nil, err
 	}
 
-	return &response.ExternalGateways[0], nil
+	return response.ExternalGateways[0], nil
 }
 
-func (sm *ServiceManager) GetExternalGateways(queryParameters *models.ExternalGatewayRequestOpts) (*[]models.ExternalGateway, error) {
+func (sm *ServiceManager) ListExternalGateways(queryParameters *models.ExternalGatewayRequestOpts) ([]*models.ExternalGateway, error) {
 	log.Debug("Begin Get External Gateway")
 	var response models.ExternalGatewayResponse
 
@@ -31,5 +31,5 @@ func (sm *ServiceManager) GetExternalGateways(queryParameters *models.ExternalGa
 		Response:    &response,
 	})
 
-	return &response.ExternalGateways, err
+	return response.ExternalGateways, err
 }

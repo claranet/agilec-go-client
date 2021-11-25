@@ -12,7 +12,7 @@ type ExternalGatewayResponse struct {
 }
 
 type ExternalGatewayList struct {
-	ExternalGateways []ExternalGateway `json:"externalGateway"`
+	ExternalGateways []*ExternalGateway `json:"externalGateway"`
 }
 
 type ExternalGateway struct {

@@ -19,10 +19,10 @@ func (sm *ServiceManager) GetFabric(id string) (*models.Fabric, error) {
 		return nil, err
 	}
 
-	return &response.Fabrics[0], nil
+	return response.Fabrics[0], nil
 }
 
-func (sm *ServiceManager) GetFabrics(queryParameters *models.FabricRequestOpts) (*[]models.Fabric, error) {
+func (sm *ServiceManager) ListFabrics(queryParameters *models.FabricRequestOpts) ([]*models.Fabric, error) {
 	log.Debug("Begin Get Fabrics")
 	var response models.FabricResponse
 
@@ -31,5 +31,5 @@ func (sm *ServiceManager) GetFabrics(queryParameters *models.FabricRequestOpts) 
 		Response:    &response,
 	})
 
-	return &response.Fabrics, err
+	return response.Fabrics, err
 }

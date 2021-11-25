@@ -15,7 +15,7 @@ type LogicalNetworkListResponse struct {
 }
 
 type LogicalNetworkList struct {
-	LogicalNetworks []LogicalNetwork `json:"network"`
+	LogicalNetworks []*LogicalNetwork `json:"network"`
 }
 
 type LogicalNetworkResponse struct {

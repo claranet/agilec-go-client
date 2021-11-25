@@ -13,7 +13,7 @@ func (sm *ServiceManager) CreateTenant(id, name string, tenantAttr *models.Tenan
 	_, err := sm.Post(TenantModuleURL,
 		&RequestOpts{
 			Body: models.TenantList{
-				Tenants: []models.Tenant{*tenant},
+				Tenants: []*models.Tenant{tenant},
 			},
 		})
 	return err
@@ -31,7 +31,7 @@ func (sm *ServiceManager) GetTenant(id string) (*models.Tenant, error) {
 		return nil, err
 	}
 
-	return &response.Tenants[0], nil
+	return response.Tenants[0], nil
 }
 
 func (sm *ServiceManager) DeleteTenant(id string) error {
@@ -47,7 +47,7 @@ func (sm *ServiceManager) UpdateTenant(id, name string, tenantAttr *models.Tenan
 
 	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{
 		Body: models.TenantList{
-			Tenants: []models.Tenant{*tenant},
+			Tenants: []*models.Tenant{tenant},
 		},
 		Response: &response,
 	})
@@ -56,10 +56,10 @@ func (sm *ServiceManager) UpdateTenant(id, name string, tenantAttr *models.Tenan
 		return nil, err
 	}
 
-	return &response.Tenants[0], nil
+	return response.Tenants[0], nil
 }
 
-func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) (*[]models.Tenant, error) {
+func (sm *ServiceManager) ListTenants(queryParameters *models.TenantRequestOpts) ([]*models.Tenant, error) {
 	log.Debug("Begin Get Tenants")
 	var response models.TenantResponse
 
@@ -68,5 +68,5 @@ func (sm *ServiceManager) GetTenants(queryParameters *models.TenantRequestOpts) 
 		Response:    &response,
 	})
 
-	return &response.Tenants, err
+	return response.Tenants, err
 }

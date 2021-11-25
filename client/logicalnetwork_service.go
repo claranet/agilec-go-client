@@ -31,7 +31,7 @@ func (sm *ServiceManager) GetLogicalNetwork(id string) (*models.LogicalNetwork, 
 		return nil, err
 	}
 
-	return &response.LogicalNetworks[0], nil
+	return response.LogicalNetworks[0], nil
 }
 
 func (sm *ServiceManager) DeleteLogicalNetwork(id string) error {
@@ -59,7 +59,7 @@ func (sm *ServiceManager) UpdateLogicalNetwork(id, name string, logicalNetworkAt
 	return &response.LogicalNetwork, nil
 }
 
-func (sm *ServiceManager) GetLogicalNetworks(queryParameters *models.LogicalNetworkRequestOpts) (*[]models.LogicalNetwork, error) {
+func (sm *ServiceManager) ListLogicalNetworks(queryParameters *models.LogicalNetworkRequestOpts) ([]*models.LogicalNetwork, error) {
 	log.Debug("Begin Get Logical Networks")
 	var response models.LogicalNetworkListResponse
 
@@ -68,5 +68,5 @@ func (sm *ServiceManager) GetLogicalNetworks(queryParameters *models.LogicalNetw
 		Response:    &response,
 	})
 
-	return &response.LogicalNetworks, err
+	return response.LogicalNetworks, err
 }

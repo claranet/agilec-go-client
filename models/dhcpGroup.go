@@ -11,7 +11,7 @@ type DHCPGroupResponse struct {
 }
 
 type DHCPGroupList struct {
-	DHCPGroups []DHCPGroup `json:"dhcpgroup"`
+	DHCPGroups []*DHCPGroup `json:"dhcpgroup"`
 }
 
 type DHCPGroup struct {

@@ -19,10 +19,10 @@ func (sm *ServiceManager) GetDHCPGroup(id string) (*models.DHCPGroup, error) {
 		return nil, err
 	}
 
-	return &response.DHCPGroups[0], nil
+	return response.DHCPGroups[0], nil
 }
 
-func (sm *ServiceManager) GetDHCPGroups(queryParameters *models.DHCPGroupRequestOpts) (*[]models.DHCPGroup, error) {
+func (sm *ServiceManager) ListDHCPGroups(queryParameters *models.DHCPGroupRequestOpts) ([]*models.DHCPGroup, error) {
 	log.Debug("Begin Get DHCP Group")
 	var response models.DHCPGroupResponse
 
@@ -31,5 +31,5 @@ func (sm *ServiceManager) GetDHCPGroups(queryParameters *models.DHCPGroupRequest
 		Response:    &response,
 	})
 
-	return &response.DHCPGroups, err
+	return response.DHCPGroups, err
 }

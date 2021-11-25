@@ -109,8 +109,8 @@ func TestListLogicalNetworks(t *testing.T) {
 	assert.Nil(t, err)
 	queryParameters := &models.LogicalNetworkRequestOpts{}
 	queryParameters.PageSize = 3
-	response, err := client.GetLogicalNetworks(queryParameters)
-	assert.Equal(t, 3, len(*response))
+	response, err := client.ListLogicalNetworks(queryParameters)
+	assert.Equal(t, 3, len(response))
 	assert.Nil(t, err)
 }
 
