@@ -29,7 +29,7 @@ type TenantAttributes struct {
 	MulticastCapability bool                  `json:"multicastCapability,omitempty"`
 	Quota               *TenantQuota          `json:"quota,omitempty"`
 	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota,omitempty"`
-	ResPool             *TenantResPool        `json:"ResPool,omitempty"`
+	ResPool             *TenantResPool        `json:"resPool,omitempty"`
 }
 
 type TenantQuota struct {

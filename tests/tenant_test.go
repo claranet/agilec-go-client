@@ -30,16 +30,16 @@ func GetTenantAttributes() (string, string, *models.TenantAttributes) {
 		AclRuleNum: 10,
 	}
 	Tenant.ResPool = &models.TenantResPool{
-		ExternalGatewayIds: []string{"1", "2"},
-		FabricIds:          []string{"1", "2"},
-		VmmIds:             []string{"1", "2"},
-		DhcpGroupIds:       []string{"1", "2"},
+		//ExternalGatewayIds: []string{"15e608a6-8d60-4c5a-89c0-a99e3cd967ff"},
+		FabricIds:          []string{"804c7c74-5586-48bf-9cea-96a6d4d3f3a5"},
+		//VmmIds:             []string{"1", "2"},
+		//DhcpGroupIds:       []string{"1", "2"},
 	}
 
 	return Id, Name, &Tenant
 }
 
-func TestCreateTenant(t *testing.T) {
+func TestCreateTenantComplete(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(id)
 	client := helper.GetClient()
@@ -49,6 +49,12 @@ func TestCreateTenant(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, id, tenant.Id)
 	assert.Equal(t, name, tenant.Name)
+	assert.Equal(t, tenantAttr.Producer, tenant.Producer)
+	assert.Equal(t, tenantAttr.Description, tenant.Description)
+	assert.Equal(t, tenantAttr.MulticastCapability, tenant.MulticastCapability)
+	assert.Equal(t, tenantAttr.ResPool.FabricIds[0], tenant.ResPool.FabricIds[0])
+	assert.Equal(t, tenantAttr.Quota, tenant.Quota)
+	assert.Equal(t, tenantAttr.MulticastQuota, tenant.MulticastQuota)
 }
 
 func TestCreateTenantDuplicate(t *testing.T) {
@@ -78,21 +84,18 @@ func TestCreateTenantInvalidID(t *testing.T) {
 	id := "dummy"
 	client := helper.GetClient()
 	err := client.CreateTenant(id, name, tenantAttr)
-	assert.NotNil(t, err)
-	//if assert.NotNil(t, err) {
-	//	if assert.NotNil(t, err) {
-	//		response, ok := err.(*acdcn.ErrorResponse)
-	//
-	//		if !ok {
-	//			t.Error("Wrong Error Response")
-	//		}
-	//
-	//		assert.Equal(t,"Invalid UUID format.", response.ErrorMessage)
-	//		assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
-	//		assert.Equal(t,400, response.HttpStatusCode)
-	//		assert.Equal(t,"Post", response.Method)
-	//	}
-	//}
+	if assert.NotNil(t, err) {
+		if assert.NotNil(t, err) {
+			response, ok := err.(*acdcn.ErrorResponse)
+			if !ok {
+				t.Error("Wrong Error Response")
+			}
+			assert.Contains(t,response.ErrorMessage, "Invalid UUID format.")
+			assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
+			assert.Equal(t,400, response.HttpStatusCode)
+			assert.Equal(t,"Post", response.Method)
+		}
+	}
 }
 
 func TestUpdateTenant(t *testing.T) {
@@ -104,16 +107,33 @@ func TestUpdateTenant(t *testing.T) {
 	tenantAttr.Description = description
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	assert.Equal(t, description, tenant.Description)
 	getTenant := GetTenant(id)
 	assert.Equal(t, getTenant.Description, tenant.Description)
+	assert.Equal(t, getTenant.Producer, tenant.Producer)
+	assert.Equal(t, getTenant.Description, tenant.Description)
+	assert.Equal(t, getTenant.MulticastCapability, tenant.MulticastCapability)
+	assert.Equal(t, getTenant.ResPool.FabricIds[0], tenant.ResPool.FabricIds[0])
+	assert.Equal(t, getTenant.Quota, tenant.Quota)
+	assert.Equal(t, getTenant.MulticastQuota, tenant.MulticastQuota)
+
 }
 
 func TestUpdateNonExistingTenant(t *testing.T) {
 	client := helper.GetClient()
 	u, _ := uuid.NewV4()
 	_, err := client.UpdateTenant(u.String(), "dummy", &models.TenantAttributes{})
-	assert.NotNil(t, err)
+	if assert.NotNil(t, err) {
+		if assert.NotNil(t, err) {
+			response, ok := err.(*acdcn.ErrorResponse)
+			if !ok {
+				t.Error("Wrong Error Response")
+			}
+			assert.Contains(t,response.ErrorMessage, "tenant not exist.")
+			assert.Contains(t, response.URL,"/controller/dc/v3/tenants")
+			assert.Equal(t,400, response.HttpStatusCode)
+			assert.Equal(t,"Put", response.Method)
+		}
+	}
 }
 
 func TestGetTenant(t *testing.T) {
@@ -129,7 +149,7 @@ func TestGetTenant(t *testing.T) {
 	assert.Equal(t, tenantAttr.Producer, tenant.Producer)
 	assert.Equal(t, tenantAttr.MulticastCapability, tenant.MulticastCapability)
 	assert.Equal(t, tenantAttr.Quota, tenant.Quota)
-	//assert.Equal(t, tenantAttr.ResPool, tenant.ResPool)
+	assert.Equal(t, tenantAttr.ResPool.FabricIds[0], tenant.ResPool.FabricIds[0])
 }
 
 func TestGetNonExistTenant(t *testing.T) {
