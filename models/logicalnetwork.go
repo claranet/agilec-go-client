@@ -29,18 +29,18 @@ type LogicalNetwork struct {
 }
 
 type LogicalNetworkAttributes struct {
-	Description         string                    `json:"description,omitempty"`
-	TenantId            string                    `json:"tenantId,omitempty"`
-	FabricId            []string                  `json:"fabricId,omitempty"`
-	MulticastCapability bool                      `json:"multicastCapability,omitempty"`
-	Type                string                    `json:"type,omitempty"`
+	Description         *string                    `json:"description,omitempty"`
+	TenantId            *string                    `json:"tenantId,omitempty"`
+	FabricId            []*string                  `json:"fabricId,omitempty"`
+	MulticastCapability *bool                      `json:"multicastCapability,omitempty"`
+	Type                *string                    `json:"type,omitempty"`
 	Additional          *LogicalNetworkAdditional `json:"additional,omitempty"`
 }
 
 type LogicalNetworkAdditional struct {
-	Producer string `json:"producer,omitempty"`
-	CreateAt string `json:"createAt,omitempty"`
-	UpdateAt string `json:"updateAt,omitempty"`
+	Producer *string `json:"producer,omitempty"`
+	CreateAt *string `json:"createAt,omitempty"`
+	UpdateAt *string `json:"updateAt,omitempty"`
 }
 
 func NewLogicalNetwork(id, name string, logicalNetworkAttr LogicalNetworkAttributes) *LogicalNetwork {

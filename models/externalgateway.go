@@ -16,19 +16,19 @@ type ExternalGatewayList struct {
 }
 
 type ExternalGateway struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id   *string `json:"id"`
+	Name *string `json:"name"`
 	ExternalGatewayAttributes
 }
 
 type ExternalGatewayAttributes struct {
-	Description    string   `json:"description,omitempty"`
-	GatewayType    string   `json:"gatewayType,omitempty"`
-	PublicIpPool   []string `json:"publicIppool,omitempty"`
-	ServiceIpPool  []string `json:"serviceIppool,omitempty"`
-	IsTelcoGateway bool     `json:"isTelcoGateway,omitempty"`
-	VrfName        string   `json:"vrfName,omitempty"`
-	IsAllShared    bool     `json:"isAllShared,omitempty"`
+	Description    *string   `json:"description,omitempty"`
+	GatewayType    *string   `json:"gatewayType,omitempty"`
+	PublicIpPool   []*string `json:"publicIppool,omitempty"`
+	ServiceIpPool  []*string `json:"serviceIppool,omitempty"`
+	IsTelcoGateway *bool     `json:"isTelcoGateway,omitempty"`
+	VrfName        *string   `json:"vrfName,omitempty"`
+	IsAllShared    *bool     `json:"isAllShared,omitempty"`
 }
 
 func (resp *ExternalGatewayResponse) Count() int {

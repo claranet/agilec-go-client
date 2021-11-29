@@ -17,23 +17,23 @@ func GetTenantAttributes() (string, string, *models.TenantAttributes) {
 	Name := "OUTSCOPE-GO-TESTS-001"
 
 	Tenant := models.TenantAttributes{}
-	Tenant.Description = "Created By GO"
-	Tenant.Producer = "GOLANG"
-	Tenant.MulticastCapability = true
+	Tenant.Description = acdcn.String("Created By GO")
+	Tenant.Producer =  acdcn.String("GOLANG")
+	Tenant.MulticastCapability = acdcn.Bool(true)
 	Tenant.Quota = &models.TenantQuota{
-		LogicVasNum:    10,
-		LogicRouterNum: 5,
-		LogicSwitchNum: 6,
+		LogicVasNum:    acdcn.Int32(10),
+		LogicRouterNum: acdcn.Int32(5),
+		LogicSwitchNum: acdcn.Int32(6),
 	}
 	Tenant.MulticastQuota = &models.TenantMulticastQuota{
-		AclNum:     10,
-		AclRuleNum: 10,
+		AclNum:     acdcn.Int32(10),
+		AclRuleNum: acdcn.Int32(10),
 	}
 	Tenant.ResPool = &models.TenantResPool{
-		//ExternalGatewayIds: []string{"15e608a6-8d60-4c5a-89c0-a99e3cd967ff"},
-		FabricIds:          []string{"804c7c74-5586-48bf-9cea-96a6d4d3f3a5"},
-		//VmmIds:             []string{"1", "2"},
-		//DhcpGroupIds:       []string{"1", "2"},
+		//ExternalGatewayIds: []*string{"15e608a6-8d60-4c5a-89c0-a99e3cd967ff"},
+		FabricIds:          []*string{acdcn.String("804c7c74-5586-48bf-9cea-96a6d4d3f3a5")},
+		//VmmIds:             []*string{"1", "2"},
+		//DhcpGroupIds:       []*string{"1", "2"},
 	}
 
 	return Id, Name, &Tenant
@@ -102,19 +102,20 @@ func TestUpdateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(id)
 	client := helper.GetClient()
+	fmt.Println("CREATE")
 	err := client.CreateTenant(id, name, tenantAttr)
-	description := "Updated From GO"
-	tenantAttr.Description = description
+	tenantAttr.Description = acdcn.String("Updated From Go")
+	tenantAttr.MulticastCapability = acdcn.Bool(false)
+	tenantAttr.MulticastQuota = nil
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	getTenant := GetTenant(id)
-	assert.Equal(t, getTenant.Description, tenant.Description)
-	assert.Equal(t, getTenant.Producer, tenant.Producer)
-	assert.Equal(t, getTenant.Description, tenant.Description)
-	assert.Equal(t, getTenant.MulticastCapability, tenant.MulticastCapability)
-	assert.Equal(t, getTenant.ResPool.FabricIds[0], tenant.ResPool.FabricIds[0])
-	assert.Equal(t, getTenant.Quota, tenant.Quota)
-	assert.Equal(t, getTenant.MulticastQuota, tenant.MulticastQuota)
+	assert.Equal(t, tenantAttr.Description, getTenant.Description)
+	assert.Equal(t, tenant.Producer, getTenant.Producer)
+	assert.Equal(t, tenantAttr.Description, getTenant.Description)
+	assert.Equal(t, tenantAttr.MulticastCapability, getTenant.MulticastCapability)
+	assert.Equal(t, tenant.ResPool.FabricIds[0], getTenant.ResPool.FabricIds[0])
+	assert.Equal(t, tenant.Quota, getTenant.Quota)
 
 }
 
@@ -180,7 +181,7 @@ func TestListTenants(t *testing.T) {
 	response, err := client.ListTenants(queryParameters)
 	assert.Equal(t, 3, len(response))
 	assert.Nil(t, err)
-	queryParameters.Producer = tenantAttr.Producer
+	queryParameters.Producer = *tenantAttr.Producer
 	queryParameters.PageSize = 3
 	response, err = client.ListTenants(queryParameters)
 	assert.Equal(t, 1, len(response))

@@ -22,32 +22,32 @@ type Tenant struct {
 }
 
 type TenantAttributes struct {
-	Description         string                `json:"description,omitempty"`
-	Producer            string                `json:"producer,omitempty"`
-	CreateAt            string                `json:"createAt,omitempty"`
-	UpdateAt            string                `json:"updateAt,omitempty"`
-	MulticastCapability bool                  `json:"multicastCapability,omitempty"`
+	Description         *string                `json:"description,omitempty"`
+	Producer            *string                `json:"producer,omitempty"`
+	CreateAt            *string                `json:"createAt,omitempty"`
+	UpdateAt            *string                `json:"updateAt,omitempty"`
+	MulticastCapability *bool                  `json:"multicastCapability"`
 	Quota               *TenantQuota          `json:"quota,omitempty"`
 	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota,omitempty"`
 	ResPool             *TenantResPool        `json:"resPool,omitempty"`
 }
 
 type TenantQuota struct {
-	LogicVasNum    int32 `json:"logicVasNum,omitempty"`
-	LogicRouterNum int32 `json:"logicRouterNum,omitempty"`
-	LogicSwitchNum int32 `json:"logicSwitchNum,omitempty"`
+	LogicVasNum    *int32 `json:"logicVasNum,omitempty"`
+	LogicRouterNum *int32 `json:"logicRouterNum,omitempty"`
+	LogicSwitchNum *int32 `json:"logicSwitchNum,omitempty"`
 }
 
 type TenantMulticastQuota struct {
-	AclNum     int32 `json:"aclNum,omitempty"`
-	AclRuleNum int32 `json:"aclRuleNum,omitempty"`
+	AclNum     *int32 `json:"aclNum,omitempty"`
+	AclRuleNum *int32 `json:"aclRuleNum,omitempty"`
 }
 
 type TenantResPool struct {
-	ExternalGatewayIds []string `json:"externalGatewayIds,omitempty"`
-	FabricIds          []string `json:"fabricIds,omitempty"`
-	VmmIds             []string `json:"vmmIds,omitempty"`
-	DhcpGroupIds       []string `json:"dhcpGroupIds,omitempty"`
+	ExternalGatewayIds []*string `json:"externalGatewayIds,omitempty"`
+	FabricIds          []*string `json:"fabricIds,omitempty"`
+	VmmIds             []*string `json:"vmmIds,omitempty"`
+	DhcpGroupIds       []*string `json:"dhcpGroupIds,omitempty"`
 }
 
 func NewTenant(id, name string, tenantAttr TenantAttributes) *Tenant {

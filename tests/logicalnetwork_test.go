@@ -3,6 +3,7 @@ package tests
 import (
 	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
+	acdcn "github.com/outscope-solutions/acdcn-go-client/client"
 	"github.com/outscope-solutions/acdcn-go-client/models"
 	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
@@ -16,14 +17,14 @@ func GetLogicalNetworkAttributes() (string, string, *models.LogicalNetworkAttrib
 	Name := "OUTSCOPE-GO-TESTS-001"
 
 	LogicalNetwork := models.LogicalNetworkAttributes{}
-	LogicalNetwork.Description = "Created By GO"
-	LogicalNetwork.MulticastCapability = false
-	LogicalNetwork.Type = "Transit"
-	LogicalNetwork.TenantId = "7e0ba3e8-280d-420c-951a-b2fe79b4b68a"
-	LogicalNetwork.FabricId = []string{"f1429224-1860-4bdb-8cc8-98ccc0f5563a"}
+	LogicalNetwork.Description = acdcn.String("Created By GO")
+	LogicalNetwork.MulticastCapability = acdcn.Bool(false)
+	LogicalNetwork.Type = acdcn.String("Transit")
+	LogicalNetwork.TenantId = acdcn.String("7e0ba3e8-280d-420c-951a-b2fe79b4b68a")
+	LogicalNetwork.FabricId = []*string{acdcn.String("f1429224-1860-4bdb-8cc8-98ccc0f5563a")}
 
 	LogicalNetwork.Additional = &models.LogicalNetworkAdditional{
-		Producer:    "GOLANG",
+		Producer:    acdcn.String("GOLANG"),
 	}
 	return Id, Name, &LogicalNetwork
 }
@@ -63,11 +64,10 @@ func TestUpdateLogicalNetwork(t *testing.T) {
 	defer DeleteLogicalNetwork(id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
-	description := "Updated From GO"
-	logicalNetworktAttr.Description = description
+	logicalNetworktAttr.Description = acdcn.String( "Updated From GO")
 	logicalNetwork, err := client.UpdateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.Nil(t, err)
-	assert.Equal(t, description, logicalNetwork.Description)
+	assert.Equal(t, logicalNetworktAttr.Description, logicalNetwork.Description)
 	getLogicalNetwork := GetLogicalNetwork(id)
 	assert.Equal(t, getLogicalNetwork.Description, logicalNetwork.Description)
 }
