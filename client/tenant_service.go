@@ -7,7 +7,7 @@ import (
 
 const TenantModuleURL = "/controller/dc/v3/tenants"
 
-func (sm *ServiceManager) CreateTenant(id, name string, tenantAttr *models.TenantAttributes) error {
+func (sm *ServiceManager) CreateTenant(id, name *string, tenantAttr *models.TenantAttributes) error {
 	log.Debug("Begin Create Tenant")
 	tenant := models.NewTenant(id, name, *tenantAttr)
 	_, err := sm.Post(TenantModuleURL,
@@ -40,12 +40,12 @@ func (sm *ServiceManager) DeleteTenant(id string) error {
 	return err
 }
 
-func (sm *ServiceManager) UpdateTenant(id, name string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
+func (sm *ServiceManager) UpdateTenant(id, name *string, tenantAttr *models.TenantAttributes) (*models.Tenant, error) {
 	log.Debug("Begin Update Tenant")
 	var response models.TenantResponse
 	tenant := models.NewTenant(id, name, *tenantAttr)
 
-	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, tenant.Id, &RequestOpts{
+	_, err := sm.Put(models.TenantModuleName, TenantModuleURL, *tenant.Id, &RequestOpts{
 		Body: models.TenantList{
 			Tenants: []*models.Tenant{tenant},
 		},

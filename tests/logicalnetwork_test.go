@@ -10,11 +10,11 @@ import (
 	"testing"
 )
 
-func GetLogicalNetworkAttributes() (string, string, *models.LogicalNetworkAttributes) {
+func GetLogicalNetworkAttributes() (*string, *string, *models.LogicalNetworkAttributes) {
 	u, _ := uuid.NewV4()
 	fmt.Printf("Logical Network ID Generated: %s\n", u.String())
-	Id := u.String()
-	Name := "OUTSCOPE-GO-TESTS-001"
+	Id := acdcn.String(u.String())
+	Name := acdcn.String("OUTSCOPE-GO-TESTS-001")
 
 	LogicalNetwork := models.LogicalNetworkAttributes{}
 	LogicalNetwork.Description = acdcn.String("Created By GO")
@@ -31,11 +31,11 @@ func GetLogicalNetworkAttributes() (string, string, *models.LogicalNetworkAttrib
 
 func TestCreateLogicalNetwork(t *testing.T) {
 	id, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	defer DeleteLogicalNetwork(id)
+	defer DeleteLogicalNetwork(*id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.Nil(t, err)
-	logicalNetwork, err := client.GetLogicalNetwork(id)
+	logicalNetwork, err := client.GetLogicalNetwork(*id)
 	assert.Nil(t, err)
 	assert.Equal(t, id, logicalNetwork.Id)
 	assert.Equal(t, name, logicalNetwork.Name)
@@ -43,7 +43,7 @@ func TestCreateLogicalNetwork(t *testing.T) {
 
 func TestCreateLogicalNetworkDuplicate(t *testing.T) {
 	id, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	defer DeleteLogicalNetwork(id)
+	defer DeleteLogicalNetwork(*id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.Nil(t, err)
@@ -53,7 +53,7 @@ func TestCreateLogicalNetworkDuplicate(t *testing.T) {
 
 func TestCreateLogicalNetworkInvalidID(t *testing.T) {
 	_, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	id := "dummy"
+	id := acdcn.String("dummy")
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.NotNil(t, err)
@@ -61,30 +61,30 @@ func TestCreateLogicalNetworkInvalidID(t *testing.T) {
 
 func TestUpdateLogicalNetwork(t *testing.T) {
 	id, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	defer DeleteLogicalNetwork(id)
+	defer DeleteLogicalNetwork(*id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
 	logicalNetworktAttr.Description = acdcn.String( "Updated From GO")
 	logicalNetwork, err := client.UpdateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.Nil(t, err)
 	assert.Equal(t, logicalNetworktAttr.Description, logicalNetwork.Description)
-	getLogicalNetwork := GetLogicalNetwork(id)
+	getLogicalNetwork := GetLogicalNetwork(*id)
 	assert.Equal(t, getLogicalNetwork.Description, logicalNetwork.Description)
 }
 
 func TestUpdateNonExistingLogicalNetwork(t *testing.T) {
 	client := helper.GetClient()
 	u, _ := uuid.NewV4()
-	_, err := client.UpdateLogicalNetwork(u.String(), "dummy", &models.LogicalNetworkAttributes{})
+	_, err := client.UpdateLogicalNetwork(acdcn.String(u.String()), acdcn.String("dummy"), &models.LogicalNetworkAttributes{})
 	assert.NotNil(t, err)
 }
 
 func TestGetLogicalNetwork(t *testing.T) {
 	id, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	defer DeleteLogicalNetwork(id)
+	defer DeleteLogicalNetwork(*id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
-	logicalNetwork := GetLogicalNetwork(id)
+	logicalNetwork := GetLogicalNetwork(*id)
 	assert.Nil(t, err)
 	assert.Equal(t, id, logicalNetwork.Id, id)
 	assert.Equal(t, name, logicalNetwork.Name, name)
@@ -103,7 +103,7 @@ func TestGetNonExistLogicalNetwork(t *testing.T) {
 
 func TestListLogicalNetworks(t *testing.T) {
 	id, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	defer DeleteLogicalNetwork(id)
+	defer DeleteLogicalNetwork(*id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.Nil(t, err)
@@ -117,7 +117,7 @@ func TestListLogicalNetworks(t *testing.T) {
 func TestDeleteLogicalNetwork(t *testing.T) {
 	id, _, _ := GetLogicalNetworkAttributes()
 	client := helper.GetClient()
-	err := client.DeleteLogicalNetwork(id)
+	err := client.DeleteLogicalNetwork(*id)
 	assert.Nil(t, err)
 }
 

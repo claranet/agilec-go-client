@@ -10,11 +10,11 @@ import (
 	"testing"
 )
 
-func GetTenantAttributes() (string, string, *models.TenantAttributes) {
+func GetTenantAttributes() (*string, *string, *models.TenantAttributes) {
 	u, _ := uuid.NewV4()
 	fmt.Printf("Tenant ID Generated: %s\n", u.String())
-	Id := u.String()
-	Name := "OUTSCOPE-GO-TESTS-001"
+	Id := acdcn.String(u.String())
+	Name := acdcn.String("OUTSCOPE-GO-TESTS-001")
 
 	Tenant := models.TenantAttributes{}
 	Tenant.Description = acdcn.String("Created By GO")
@@ -41,11 +41,11 @@ func GetTenantAttributes() (string, string, *models.TenantAttributes) {
 
 func TestCreateTenantComplete(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(id)
+	defer DeleteTenant(*id)
 	client := helper.GetClient()
 	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	tenant, err := client.GetTenant(id)
+	tenant, err := client.GetTenant(*id)
 	assert.Nil(t, err)
 	assert.Equal(t, id, tenant.Id)
 	assert.Equal(t, name, tenant.Name)
@@ -59,29 +59,29 @@ func TestCreateTenantComplete(t *testing.T) {
 
 func TestCreateTenantDuplicate(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(id)
+	defer DeleteTenant(*id)
 	client := helper.GetClient()
 	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	err = client.CreateTenant(id, name, tenantAttr)
 	assert.NotNil(t, err)
-	//if assert.NotNil(t, err) {
-	//	response, ok := err.(*acdcn.ErrorResponse)
-	//
-	//	if !ok {
-	//		t.Error("Wrong Error Response")
-	//	}
-	//
-	//	assert.Equal(t,"The tenant id already exist.", response.ErrorMessage)
-	//	assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
-	//	assert.Equal(t,400, response.HttpStatusCode)
-	//	assert.Equal(t,"Post", response.Method)
-	//}
+	if assert.NotNil(t, err) {
+		response, ok := err.(*acdcn.ErrorResponse)
+
+		if !ok {
+			t.Error("Wrong Error Response")
+		}
+
+		assert.Contains(t, response.ErrorMessage,"The tenant id already exist.")
+		assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
+		assert.Equal(t,400, response.HttpStatusCode)
+		assert.Equal(t,"Post", response.Method)
+	}
 }
 
 func TestCreateTenantInvalidID(t *testing.T) {
 	_, name, tenantAttr := GetTenantAttributes()
-	id := "dummy"
+	id := acdcn.String("dummy")
 	client := helper.GetClient()
 	err := client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
@@ -100,7 +100,7 @@ func TestCreateTenantInvalidID(t *testing.T) {
 
 func TestUpdateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(id)
+	defer DeleteTenant(*id)
 	client := helper.GetClient()
 	fmt.Println("CREATE")
 	err := client.CreateTenant(id, name, tenantAttr)
@@ -109,7 +109,7 @@ func TestUpdateTenant(t *testing.T) {
 	tenantAttr.MulticastQuota = nil
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	getTenant := GetTenant(id)
+	getTenant := GetTenant(*id)
 	assert.Equal(t, tenantAttr.Description, getTenant.Description)
 	assert.Equal(t, tenant.Producer, getTenant.Producer)
 	assert.Equal(t, tenantAttr.Description, getTenant.Description)
@@ -122,7 +122,7 @@ func TestUpdateTenant(t *testing.T) {
 func TestUpdateNonExistingTenant(t *testing.T) {
 	client := helper.GetClient()
 	u, _ := uuid.NewV4()
-	_, err := client.UpdateTenant(u.String(), "dummy", &models.TenantAttributes{})
+	_, err := client.UpdateTenant(acdcn.String(u.String()), acdcn.String("dummy"), &models.TenantAttributes{})
 	if assert.NotNil(t, err) {
 		if assert.NotNil(t, err) {
 			response, ok := err.(*acdcn.ErrorResponse)
@@ -139,10 +139,10 @@ func TestUpdateNonExistingTenant(t *testing.T) {
 
 func TestGetTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(id)
+	defer DeleteTenant(*id)
 	client := helper.GetClient()
 	err := client.CreateTenant(id, name, tenantAttr)
-	tenant, err := client.GetTenant(id)
+	tenant, err := client.GetTenant(*id)
 	assert.Nil(t, err)
 	assert.Equal(t, id, tenant.Id, id)
 	assert.Equal(t, name, tenant.Name, name)
@@ -173,7 +173,7 @@ func TestGetNonExistTenant(t *testing.T) {
 func TestListTenants(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	client := helper.GetClient()
-	defer DeleteTenant(id)
+	defer DeleteTenant(*id)
 	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	queryParameters := &models.TenantRequestOpts{}
@@ -192,7 +192,7 @@ func TestListTenants(t *testing.T) {
 func TestDeleteTenant(t *testing.T) {
 	id, _, _ := GetTenantAttributes()
 	client := helper.GetClient()
-	err := client.DeleteTenant(id)
+	err := client.DeleteTenant(*id)
 	assert.Nil(t, err)
 }
 

@@ -16,8 +16,8 @@ type TenantList struct {
 }
 
 type Tenant struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id   *string `json:"id"`
+	Name *string `json:"name"`
 	TenantAttributes
 }
 
@@ -50,7 +50,7 @@ type TenantResPool struct {
 	DhcpGroupIds       []*string `json:"dhcpGroupIds,omitempty"`
 }
 
-func NewTenant(id, name string, tenantAttr TenantAttributes) *Tenant {
+func NewTenant(id, name *string, tenantAttr TenantAttributes) *Tenant {
 	return &Tenant{
 		Id:               id,
 		Name:             name,

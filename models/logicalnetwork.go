@@ -23,8 +23,8 @@ type LogicalNetworkResponse struct {
 }
 
 type LogicalNetwork struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id   *string `json:"id"`
+	Name *string `json:"name"`
 	LogicalNetworkAttributes
 }
 
@@ -43,7 +43,7 @@ type LogicalNetworkAdditional struct {
 	UpdateAt *string `json:"updateAt,omitempty"`
 }
 
-func NewLogicalNetwork(id, name string, logicalNetworkAttr LogicalNetworkAttributes) *LogicalNetwork {
+func NewLogicalNetwork(id, name *string, logicalNetworkAttr LogicalNetworkAttributes) *LogicalNetwork {
 	return &LogicalNetwork{
 		Id:                       id,
 		Name:                     name,

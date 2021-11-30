@@ -7,7 +7,7 @@ import (
 
 const LogicalNetworkModuleURL = "/controller/dc/v3/logicnetwork/networks"
 
-func (sm *ServiceManager) CreateLogicalNetwork(id, name string, logicalNetworkAttr *models.LogicalNetworkAttributes) error {
+func (sm *ServiceManager) CreateLogicalNetwork(id, name *string, logicalNetworkAttr *models.LogicalNetworkAttributes) error {
 	log.Debug("Begin Create Logical Network")
 	logicalNetwork := models.NewLogicalNetwork(id, name, *logicalNetworkAttr)
 	_, err := sm.Post(LogicalNetworkModuleURL,
@@ -40,12 +40,12 @@ func (sm *ServiceManager) DeleteLogicalNetwork(id string) error {
 	return err
 }
 
-func (sm *ServiceManager) UpdateLogicalNetwork(id, name string, logicalNetworkAttr *models.LogicalNetworkAttributes) (*models.LogicalNetwork, error) {
+func (sm *ServiceManager) UpdateLogicalNetwork(id, name *string, logicalNetworkAttr *models.LogicalNetworkAttributes) (*models.LogicalNetwork, error) {
 	log.Debug("Begin Update Logical Network")
 	var response models.LogicalNetworkResponse
 	logicalNetwork := models.NewLogicalNetwork(id, name, *logicalNetworkAttr)
 
-	_, err := sm.Put(models.LogicalNetworkModuleName, LogicalNetworkModuleURL, logicalNetwork.Id, &RequestOpts{
+	_, err := sm.Put(models.LogicalNetworkModuleName, LogicalNetworkModuleURL, *logicalNetwork.Id, &RequestOpts{
 		Body: models.LogicalNetworkResponse{
 			LogicalNetwork: *logicalNetwork,
 		},
