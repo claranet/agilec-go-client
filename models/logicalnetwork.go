@@ -34,7 +34,8 @@ type LogicalNetworkAttributes struct {
 	FabricId            []*string                  `json:"fabricId,omitempty"`
 	MulticastCapability *bool                      `json:"multicastCapability,omitempty"`
 	Type                *string                    `json:"type,omitempty"`
-	Additional          *LogicalNetworkAdditional `json:"additional,omitempty"`
+	IsVpcDeployed       *bool                      `json:"isVpcDeployed,omitempty"`
+	Additional          *LogicalNetworkAdditional  `json:"additional,omitempty"`
 }
 
 type LogicalNetworkAdditional struct {
