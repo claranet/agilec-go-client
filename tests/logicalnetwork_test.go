@@ -3,9 +3,9 @@ package tests
 import (
 	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
-	acdcn "github.com/outscope-solutions/acdcn-go-client/client"
-	"github.com/outscope-solutions/acdcn-go-client/models"
-	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
+	agilec "github.com/outscope-solutions/agilec-go-client/client"
+	"github.com/outscope-solutions/agilec-go-client/models"
+	helper "github.com/outscope-solutions/agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,18 +13,18 @@ import (
 func GetLogicalNetworkAttributes() (*string, *string, *models.LogicalNetworkAttributes) {
 	u, _ := uuid.NewV4()
 	fmt.Printf("Logical Network ID Generated: %s\n", u.String())
-	Id := acdcn.String(u.String())
-	Name := acdcn.String("OUTSCOPE-GO-TESTS-001")
+	Id := agilec.String(u.String())
+	Name := agilec.String("OUTSCOPE-GO-TESTS-001")
 
 	LogicalNetwork := models.LogicalNetworkAttributes{}
-	LogicalNetwork.Description = acdcn.String("Created By GO")
-	LogicalNetwork.MulticastCapability = acdcn.Bool(false)
-	LogicalNetwork.Type = acdcn.String("Transit")
-	LogicalNetwork.TenantId = acdcn.String("7e0ba3e8-280d-420c-951a-b2fe79b4b68a")
-	LogicalNetwork.FabricId = []*string{acdcn.String("f1429224-1860-4bdb-8cc8-98ccc0f5563a")}
+	LogicalNetwork.Description = agilec.String("Created By GO")
+	LogicalNetwork.MulticastCapability = agilec.Bool(false)
+	LogicalNetwork.Type = agilec.String("Transit")
+	LogicalNetwork.TenantId = agilec.String("7e0ba3e8-280d-420c-951a-b2fe79b4b68a")
+	LogicalNetwork.FabricId = []*string{agilec.String("f1429224-1860-4bdb-8cc8-98ccc0f5563a")}
 
 	LogicalNetwork.Additional = &models.LogicalNetworkAdditional{
-		Producer:    acdcn.String("GOLANG"),
+		Producer: agilec.String("GOLANG"),
 	}
 	return Id, Name, &LogicalNetwork
 }
@@ -53,7 +53,7 @@ func TestCreateLogicalNetworkDuplicate(t *testing.T) {
 
 func TestCreateLogicalNetworkInvalidID(t *testing.T) {
 	_, name, logicalNetworktAttr := GetLogicalNetworkAttributes()
-	id := acdcn.String("dummy")
+	id := agilec.String("dummy")
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.NotNil(t, err)
@@ -64,7 +64,7 @@ func TestUpdateLogicalNetwork(t *testing.T) {
 	defer DeleteLogicalNetwork(*id)
 	client := helper.GetClient()
 	err := client.CreateLogicalNetwork(id, name, logicalNetworktAttr)
-	logicalNetworktAttr.Description = acdcn.String( "Updated From GO")
+	logicalNetworktAttr.Description = agilec.String("Updated From GO")
 	logicalNetwork, err := client.UpdateLogicalNetwork(id, name, logicalNetworktAttr)
 	assert.Nil(t, err)
 	assert.Equal(t, logicalNetworktAttr.Description, logicalNetwork.Description)
@@ -75,7 +75,7 @@ func TestUpdateLogicalNetwork(t *testing.T) {
 func TestUpdateNonExistingLogicalNetwork(t *testing.T) {
 	client := helper.GetClient()
 	u, _ := uuid.NewV4()
-	_, err := client.UpdateLogicalNetwork(acdcn.String(u.String()), acdcn.String("dummy"), &models.LogicalNetworkAttributes{})
+	_, err := client.UpdateLogicalNetwork(agilec.String(u.String()), agilec.String("dummy"), &models.LogicalNetworkAttributes{})
 	assert.NotNil(t, err)
 }
 

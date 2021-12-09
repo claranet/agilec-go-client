@@ -1,4 +1,4 @@
-module github.com/outscope-solutions/acdcn-go-client
+module github.com/outscope-solutions/agilec-go-client
 
 go 1.17
 

@@ -3,9 +3,9 @@ package tests
 import (
 	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
-	acdcn "github.com/outscope-solutions/acdcn-go-client/client"
-	"github.com/outscope-solutions/acdcn-go-client/models"
-	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
+	agilec "github.com/outscope-solutions/agilec-go-client/client"
+	"github.com/outscope-solutions/agilec-go-client/models"
+	helper "github.com/outscope-solutions/agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,25 +13,25 @@ import (
 func GetTenantAttributes() (*string, *string, *models.TenantAttributes) {
 	u, _ := uuid.NewV4()
 	fmt.Printf("Tenant ID Generated: %s\n", u.String())
-	Id := acdcn.String(u.String())
-	Name := acdcn.String("OUTSCOPE-GO-TESTS-001")
+	Id := agilec.String(u.String())
+	Name := agilec.String("OUTSCOPE-GO-TESTS-001")
 
 	Tenant := models.TenantAttributes{}
-	Tenant.Description = acdcn.String("Created By GO")
-	Tenant.Producer =  acdcn.String("GOLANG")
-	Tenant.MulticastCapability = acdcn.Bool(true)
+	Tenant.Description = agilec.String("Created By GO")
+	Tenant.Producer = agilec.String("GOLANG")
+	Tenant.MulticastCapability = agilec.Bool(true)
 	Tenant.Quota = &models.TenantQuota{
-		LogicVasNum:    acdcn.Int32(10),
-		LogicRouterNum: acdcn.Int32(5),
-		LogicSwitchNum: acdcn.Int32(6),
+		LogicVasNum:    agilec.Int32(10),
+		LogicRouterNum: agilec.Int32(5),
+		LogicSwitchNum: agilec.Int32(6),
 	}
 	Tenant.MulticastQuota = &models.TenantMulticastQuota{
-		AclNum:     acdcn.Int32(10),
-		AclRuleNum: acdcn.Int32(10),
+		AclNum:     agilec.Int32(10),
+		AclRuleNum: agilec.Int32(10),
 	}
 	Tenant.ResPool = &models.TenantResPool{
 		//ExternalGatewayIds: []*string{"15e608a6-8d60-4c5a-89c0-a99e3cd967ff"},
-		FabricIds:          []*string{acdcn.String("804c7c74-5586-48bf-9cea-96a6d4d3f3a5")},
+		FabricIds: []*string{agilec.String("804c7c74-5586-48bf-9cea-96a6d4d3f3a5")},
 		//VmmIds:             []*string{"1", "2"},
 		//DhcpGroupIds:       []*string{"1", "2"},
 	}
@@ -66,34 +66,34 @@ func TestCreateTenantDuplicate(t *testing.T) {
 	err = client.CreateTenant(id, name, tenantAttr)
 	assert.NotNil(t, err)
 	if assert.NotNil(t, err) {
-		response, ok := err.(*acdcn.ErrorResponse)
+		response, ok := err.(*agilec.ErrorResponse)
 
 		if !ok {
 			t.Error("Wrong Error Response")
 		}
 
-		assert.Contains(t, response.ErrorMessage,"The tenant id already exist.")
-		assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
-		assert.Equal(t,400, response.HttpStatusCode)
-		assert.Equal(t,"Post", response.Method)
+		assert.Contains(t, response.ErrorMessage, "The tenant id already exist.")
+		assert.Equal(t, "/controller/dc/v3/tenants", response.URL)
+		assert.Equal(t, 400, response.HttpStatusCode)
+		assert.Equal(t, "Post", response.Method)
 	}
 }
 
 func TestCreateTenantInvalidID(t *testing.T) {
 	_, name, tenantAttr := GetTenantAttributes()
-	id := acdcn.String("dummy")
+	id := agilec.String("dummy")
 	client := helper.GetClient()
 	err := client.CreateTenant(id, name, tenantAttr)
 	if assert.NotNil(t, err) {
 		if assert.NotNil(t, err) {
-			response, ok := err.(*acdcn.ErrorResponse)
+			response, ok := err.(*agilec.ErrorResponse)
 			if !ok {
 				t.Error("Wrong Error Response")
 			}
-			assert.Contains(t,response.ErrorMessage, "Invalid UUID format.")
-			assert.Equal(t,"/controller/dc/v3/tenants", response.URL)
-			assert.Equal(t,400, response.HttpStatusCode)
-			assert.Equal(t,"Post", response.Method)
+			assert.Contains(t, response.ErrorMessage, "Invalid UUID format.")
+			assert.Equal(t, "/controller/dc/v3/tenants", response.URL)
+			assert.Equal(t, 400, response.HttpStatusCode)
+			assert.Equal(t, "Post", response.Method)
 		}
 	}
 }
@@ -102,10 +102,9 @@ func TestUpdateTenant(t *testing.T) {
 	id, name, tenantAttr := GetTenantAttributes()
 	defer DeleteTenant(*id)
 	client := helper.GetClient()
-	fmt.Println("CREATE")
 	err := client.CreateTenant(id, name, tenantAttr)
-	tenantAttr.Description = acdcn.String("Updated From Go")
-	tenantAttr.MulticastCapability = acdcn.Bool(false)
+	tenantAttr.Description = agilec.String("Updated From Go")
+	tenantAttr.MulticastCapability = agilec.Bool(false)
 	tenantAttr.MulticastQuota = nil
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
@@ -122,17 +121,17 @@ func TestUpdateTenant(t *testing.T) {
 func TestUpdateNonExistingTenant(t *testing.T) {
 	client := helper.GetClient()
 	u, _ := uuid.NewV4()
-	_, err := client.UpdateTenant(acdcn.String(u.String()), acdcn.String("dummy"), &models.TenantAttributes{})
+	_, err := client.UpdateTenant(agilec.String(u.String()), agilec.String("dummy"), &models.TenantAttributes{})
 	if assert.NotNil(t, err) {
 		if assert.NotNil(t, err) {
-			response, ok := err.(*acdcn.ErrorResponse)
+			response, ok := err.(*agilec.ErrorResponse)
 			if !ok {
 				t.Error("Wrong Error Response")
 			}
-			assert.Contains(t,response.ErrorMessage, "tenant not exist.")
-			assert.Contains(t, response.URL,"/controller/dc/v3/tenants")
-			assert.Equal(t,400, response.HttpStatusCode)
-			assert.Equal(t,"Put", response.Method)
+			assert.Contains(t, response.ErrorMessage, "tenant not exist.")
+			assert.Contains(t, response.URL, "/controller/dc/v3/tenants")
+			assert.Equal(t, 400, response.HttpStatusCode)
+			assert.Equal(t, "Put", response.Method)
 		}
 	}
 }
@@ -158,15 +157,15 @@ func TestGetNonExistTenant(t *testing.T) {
 	u, _ := uuid.NewV4()
 	_, err := client.GetTenant(u.String())
 	if assert.NotNil(t, err) {
-		response, ok := err.(*acdcn.ErrorResponse)
+		response, ok := err.(*agilec.ErrorResponse)
 
 		if !ok {
 			t.Error("Wrong Error Response")
 		}
-		assert.Equal(t,"The Resource don't exists.", response.ErrorMessage)
-		assert.Equal(t,"/controller/dc/v3/tenants/tenant/" + u.String(), response.URL)
-		assert.Equal(t,0, response.HttpStatusCode)
-		assert.Equal(t,"Get", response.Method)
+		assert.Equal(t, "The Resource don't exists.", response.ErrorMessage)
+		assert.Equal(t, "/controller/dc/v3/tenants/tenant/"+u.String(), response.URL)
+		assert.Equal(t, 0, response.HttpStatusCode)
+		assert.Equal(t, "Get", response.Method)
 	}
 }
 

@@ -1,7 +1,7 @@
 package tests
 
 import (
-	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
+	helper "github.com/outscope-solutions/agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

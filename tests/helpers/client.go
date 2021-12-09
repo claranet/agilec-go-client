@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"github.com/outscope-solutions/acdcn-go-client/client"
+	"github.com/outscope-solutions/agilec-go-client/client"
 	"os"
 )
 

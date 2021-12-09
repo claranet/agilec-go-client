@@ -1,9 +1,9 @@
 package tests
 
 import (
-	acdcn "github.com/outscope-solutions/acdcn-go-client/client"
-	"github.com/outscope-solutions/acdcn-go-client/models"
-	helper "github.com/outscope-solutions/acdcn-go-client/tests/helpers"
+	agilec "github.com/outscope-solutions/agilec-go-client/client"
+	"github.com/outscope-solutions/agilec-go-client/models"
+	helper "github.com/outscope-solutions/agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -12,15 +12,15 @@ func TestGetDHCPGroup(t *testing.T) {
 	client := helper.GetClient()
 	_, err := client.GetDHCPGroup("0ad60070-9bf9-4def-bf6e-3a86157eea1c")
 	if assert.NotNil(t, err) {
-		response, ok := err.(*acdcn.ErrorResponse)
+		response, ok := err.(*agilec.ErrorResponse)
 
 		if !ok {
 			t.Error("Wrong Error Response")
 		}
-		assert.Equal(t,"The Resource don't exists.", response.ErrorMessage)
-		assert.Equal(t,"/controller/dc/v3/publicservice/dhcpgroups/dhcpgroup/0ad60070-9bf9-4def-bf6e-3a86157eea1c", response.URL)
-		assert.Equal(t,0, response.HttpStatusCode)
-		assert.Equal(t,"Get", response.Method)
+		assert.Equal(t, "The Resource don't exists.", response.ErrorMessage)
+		assert.Equal(t, "/controller/dc/v3/publicservice/dhcpgroups/dhcpgroup/0ad60070-9bf9-4def-bf6e-3a86157eea1c", response.URL)
+		assert.Equal(t, 0, response.HttpStatusCode)
+		assert.Equal(t, "Get", response.Method)
 	}
 }
 
