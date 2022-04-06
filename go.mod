@@ -1,4 +1,4 @@
-module agilec-go-client
+module github.com/claranet/agilec-go-client
 
 go 1.17
 

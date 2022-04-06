@@ -1,7 +1,7 @@
 package client
 
 import (
-	"agilec-go-client/models"
+	"github.com/claranet/agilec-go-client/models"
 	log "github.com/sirupsen/logrus"
 )
 

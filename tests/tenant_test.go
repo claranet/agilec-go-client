@@ -1,10 +1,10 @@
 package tests
 
 import (
-	agilec "agilec-go-client/client"
-	"agilec-go-client/models"
-	helper "agilec-go-client/tests/helpers"
 	"fmt"
+	agilec "github.com/claranet/agilec-go-client/client"
+	"github.com/claranet/agilec-go-client/models"
+	helper "github.com/claranet/agilec-go-client/tests/helpers"
 	uuid "github.com/nu7hatch/gouuid"
 	"github.com/stretchr/testify/assert"
 	"testing"

@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"agilec-go-client/client"
+	"github.com/claranet/agilec-go-client/client"
 	"os"
 )
 

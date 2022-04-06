@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"agilec-go-client/models"
-	helper "agilec-go-client/tests/helpers"
+	"github.com/claranet/agilec-go-client/models"
+	helper "github.com/claranet/agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
