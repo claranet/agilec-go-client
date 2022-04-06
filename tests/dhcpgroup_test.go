@@ -1,9 +1,9 @@
 package tests
 
 import (
-	agilec "github.com/outscope-solutions/agilec-go-client/client"
-	"github.com/outscope-solutions/agilec-go-client/models"
-	helper "github.com/outscope-solutions/agilec-go-client/tests/helpers"
+	agilec "agilec-go-client/client"
+	"agilec-go-client/models"
+	helper "agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

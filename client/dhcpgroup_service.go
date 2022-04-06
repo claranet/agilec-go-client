@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/outscope-solutions/agilec-go-client/models"
+	"agilec-go-client/models"
 	log "github.com/sirupsen/logrus"
 )
 

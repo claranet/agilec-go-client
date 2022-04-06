@@ -1,11 +1,11 @@
 package tests
 
 import (
+	agilec "agilec-go-client/client"
+	"agilec-go-client/models"
+	helper "agilec-go-client/tests/helpers"
 	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
-	agilec "github.com/outscope-solutions/agilec-go-client/client"
-	"github.com/outscope-solutions/agilec-go-client/models"
-	helper "github.com/outscope-solutions/agilec-go-client/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,7 +14,7 @@ func GetLogicalNetworkAttributes() (*string, *string, *models.LogicalNetworkAttr
 	u, _ := uuid.NewV4()
 	fmt.Printf("Logical Network ID Generated: %s\n", u.String())
 	Id := agilec.String(u.String())
-	Name := agilec.String("OUTSCOPE-GO-TESTS-001")
+	Name := agilec.String("CLARANET-GO-TESTS-001")
 
 	LogicalNetwork := models.LogicalNetworkAttributes{}
 	LogicalNetwork.Description = agilec.String("Created By GO")

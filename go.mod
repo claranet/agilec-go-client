@@ -1,4 +1,4 @@
-module github.com/outscope-solutions/agilec-go-client
+module agilec-go-client
 
 go 1.17
 
@@ -7,7 +7,7 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 )
 
 require (

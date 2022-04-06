@@ -7,7 +7,7 @@ This repository contains the golang client SDK to interact with HUAWEI Agile Con
 Use `go get` to retrieve the SDK to add it to your `GOPATH` workspace, or project's Go module dependencies.
 
 ```sh
-$go get github.com/outscope-solutions/agilec-go-client
+$go get github.com/claranet/agilec-go-client
 ```
 
 ## Overview ##
@@ -23,7 +23,7 @@ $go get github.com/outscope-solutions/agilec-go-client
 import the client in your go application and retrieve the client object by calling client.GetClient() method.
 
 ```golang
-import github.com/outscope-solutions/agilec-go-client/client
+import github.com/claranet/agilec-go-client/client
 client.GetClient("HOST", "Username", "Password", client.Insecure(true/false))
 ```
 
