@@ -23,9 +23,9 @@ type DHCPGroup struct {
 }
 
 type DHCPGroupAttributes struct {
-	LogicRouterId  *string          `json:"logicRouterId,omitempty"`
-	VrfName        *string          `json:"vrfName,omitempty"`
-	Producer       *string          `json:"producer,omitempty"`
+	LogicRouterId  *string         `json:"logicRouterId,omitempty"`
+	VrfName        *string         `json:"vrfName,omitempty"`
+	Producer       *string         `json:"producer,omitempty"`
 	Dhcpgroupl2vni *DHCPGroupL2Vni `json:"dhcpgroupl2vni,omitempty"`
 }
 

@@ -73,9 +73,9 @@ func (sm *ServiceManager) Get(modulename, url, id string, opts *RequestOpts) (*r
 	// Check if Resource Exists
 	if reflect.ValueOf(opts.Response).MethodByName("Count").Call(nil)[0].Interface().(int) == 0 {
 		return nil, &ErrorResponse{
-			Method: "Get",
+			Method:       "Get",
 			ErrorMessage: "The Resource don't exists.",
-			URL: fURL,
+			URL:          fURL,
 		}
 	}
 

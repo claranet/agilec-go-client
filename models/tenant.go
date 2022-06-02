@@ -22,11 +22,11 @@ type Tenant struct {
 }
 
 type TenantAttributes struct {
-	Description         *string                `json:"description,omitempty"`
-	Producer            *string                `json:"producer,omitempty"`
-	CreateAt            *string                `json:"createAt,omitempty"`
-	UpdateAt            *string                `json:"updateAt,omitempty"`
-	MulticastCapability *bool                  `json:"multicastCapability"`
+	Description         *string               `json:"description,omitempty"`
+	Producer            *string               `json:"producer,omitempty"`
+	CreateAt            *string               `json:"createAt,omitempty"`
+	UpdateAt            *string               `json:"updateAt,omitempty"`
+	MulticastCapability *bool                 `json:"multicastCapability"`
 	Quota               *TenantQuota          `json:"quota,omitempty"`
 	MulticastQuota      *TenantMulticastQuota `json:"multicastQuota,omitempty"`
 	ResPool             *TenantResPool        `json:"resPool,omitempty"`

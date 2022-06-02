@@ -29,13 +29,13 @@ type LogicalNetwork struct {
 }
 
 type LogicalNetworkAttributes struct {
-	Description         *string                    `json:"description,omitempty"`
-	TenantId            *string                    `json:"tenantId,omitempty"`
-	FabricId            []*string                  `json:"fabricId,omitempty"`
-	MulticastCapability *bool                      `json:"multicastCapability,omitempty"`
-	Type                *string                    `json:"type,omitempty"`
-	IsVpcDeployed       *bool                      `json:"isVpcDeployed,omitempty"`
-	Additional          *LogicalNetworkAdditional  `json:"additional,omitempty"`
+	Description         *string                   `json:"description,omitempty"`
+	TenantId            *string                   `json:"tenantId,omitempty"`
+	FabricId            []*string                 `json:"fabricId,omitempty"`
+	MulticastCapability *bool                     `json:"multicastCapability,omitempty"`
+	Type                *string                   `json:"type,omitempty"`
+	IsVpcDeployed       *bool                     `json:"isVpcDeployed,omitempty"`
+	Additional          *LogicalNetworkAdditional `json:"additional,omitempty"`
 }
 
 type LogicalNetworkAdditional struct {
