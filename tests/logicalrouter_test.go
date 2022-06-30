@@ -81,7 +81,7 @@ func TestUpdateNonExistingLogicalRouter(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestGetLogicaRouter(t *testing.T) {
+func TestGetLogicalRouter(t *testing.T) {
 	id, name, logicalRouterAttr := GetLogicalRouterAttributes()
 	defer DeleteLogicalRouter(*id)
 	client := helper.GetClient()

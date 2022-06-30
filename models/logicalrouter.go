@@ -7,7 +7,7 @@ type LogicalRouterRequestOpts struct {
 	Type           string `url:"type,omitempty"`
 	TenantId       string `url:"tenantId,omitempty"`
 	LogicNetworkId string `url:"logicNetworkId,omitempty"`
-	FabricIds      string `url:"logicNetworkId,omitempty"`
+	FabricIds      string `url:"fabricIds,omitempty"`
 	TransitConnect string `url:"transitConnect,omitempty"`
 	BaseRequestOpts
 }
