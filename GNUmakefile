@@ -1,11 +1,15 @@
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 
+ifneq ($(origin TESTS), undefined)
+	RUNARGS = -run='$(TESTS)'
+endif
+
 default: tests
 
 fmt:
 	gofmt -w $(GOFMT_FILES)
 
 tests:
-	TF_ACC=1 go test ./tests/... -v $(TESTARGS) -timeout 120m
+	go test  -v ./tests/... $(RUNARGS) -timeout 120m
 
 .PHONY: tests fmt

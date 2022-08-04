@@ -16,10 +16,6 @@ type LogicalPortList struct {
 	LogicalPorts []*LogicalPort `json:"port"`
 }
 
-//type LogicalPortListResponse struct {
-//	LogicalPortList
-//}
-
 type LogicalPort struct {
 	Id   *string `json:"id"`
 	Name *string `json:"name"`
