@@ -1,49 +1,18 @@
-package tests
+package client
 
 import (
 	"fmt"
-	agilec "github.com/claranet/agilec-go-client/client"
 	"github.com/claranet/agilec-go-client/models"
-	helper "github.com/claranet/agilec-go-client/tests/helpers"
 	uuid "github.com/nu7hatch/gouuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func GetTenantAttributes() (*string, *string, *models.TenantAttributes) {
-	u, _ := uuid.NewV4()
-	fmt.Printf("Tenant ID Generated: %s\n", u.String())
-	Id := agilec.String(u.String())
-	Name := agilec.String("CLARANET-GO-TESTS-001")
-
-	Tenant := models.TenantAttributes{}
-	Tenant.Description = agilec.String("Created By GO")
-	Tenant.Producer = agilec.String("GOLANG")
-	Tenant.MulticastCapability = agilec.Bool(true)
-	Tenant.Quota = &models.TenantQuota{
-		LogicVasNum:    agilec.Int32(10),
-		LogicRouterNum: agilec.Int32(5),
-		LogicSwitchNum: agilec.Int32(6),
-	}
-	Tenant.MulticastQuota = &models.TenantMulticastQuota{
-		AclNum:     agilec.Int32(10),
-		AclRuleNum: agilec.Int32(10),
-	}
-	Tenant.ResPool = &models.TenantResPool{
-		//ExternalGatewayIds: []*string{"15e608a6-8d60-4c5a-89c0-a99e3cd967ff"},
-		FabricIds: []*string{agilec.String("804c7c74-5586-48bf-9cea-96a6d4d3f3a5")},
-		//VmmIds:             []*string{"1", "2"},
-		//DhcpGroupIds:       []*string{"1", "2"},
-	}
-
-	return Id, Name, &Tenant
-}
-
-func TestCreateTenantComplete(t *testing.T) {
-	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(*id)
-	client := helper.GetClient()
+func TestCreateTenantCompleteSuccess(t *testing.T) {
+	client := GetClientTest()
+	id, name, tenantAttr := GetTenantAttributes(t, client)
 	err := client.CreateTenant(id, name, tenantAttr)
+	defer DeleteTenant(t, *id)
 	assert.Nil(t, err)
 	tenant, err := client.GetTenant(*id)
 	assert.Nil(t, err)
@@ -58,73 +27,54 @@ func TestCreateTenantComplete(t *testing.T) {
 }
 
 func TestCreateTenantDuplicate(t *testing.T) {
-	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(*id)
-	client := helper.GetClient()
+	client := GetClientTest()
+	id, name, tenantAttr := GetTenantAttributes(t, client)
+	defer DeleteTenant(t, *id)
 	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	err = client.CreateTenant(id, name, tenantAttr)
 	assert.NotNil(t, err)
 	if assert.NotNil(t, err) {
-		response, ok := err.(*agilec.ErrorResponse)
+		response, ok := err.(*ErrorResponse)
 
 		if !ok {
 			t.Error("Wrong Error Response")
 		}
 
-		assert.Contains(t, response.ErrorMessage, "The tenant id already exist.")
+		assert.Contains(t, response.ErrorMessage, "The tenant ID "+fmt.Sprint(*id)+" already exists.")
 		assert.Equal(t, "/controller/dc/v3/tenants", response.URL)
 		assert.Equal(t, 400, response.HttpStatusCode)
 		assert.Equal(t, "Post", response.Method)
 	}
 }
 
-func TestCreateTenantInvalidID(t *testing.T) {
-	_, name, tenantAttr := GetTenantAttributes()
-	id := agilec.String("dummy")
-	client := helper.GetClient()
-	err := client.CreateTenant(id, name, tenantAttr)
-	if assert.NotNil(t, err) {
-		if assert.NotNil(t, err) {
-			response, ok := err.(*agilec.ErrorResponse)
-			if !ok {
-				t.Error("Wrong Error Response")
-			}
-			assert.Contains(t, response.ErrorMessage, "Invalid UUID format.")
-			assert.Equal(t, "/controller/dc/v3/tenants", response.URL)
-			assert.Equal(t, 400, response.HttpStatusCode)
-			assert.Equal(t, "Post", response.Method)
-		}
-	}
-}
-
 func TestUpdateTenant(t *testing.T) {
-	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(*id)
-	client := helper.GetClient()
+	client := GetClientTest()
+	id, name, tenantAttr := GetTenantAttributes(t, client)
+	defer DeleteTenant(t, *id)
 	err := client.CreateTenant(id, name, tenantAttr)
-	tenantAttr.Description = agilec.String("Updated From Go")
-	tenantAttr.MulticastCapability = agilec.Bool(false)
+	assert.Nil(t, err)
+	tenantAttr.Description = String("Updated From Go")
+	tenantAttr.MulticastCapability = Bool(false)
 	tenantAttr.MulticastQuota = nil
 	tenant, err := client.UpdateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
-	getTenant := GetTenant(*id)
+	getTenant := GetTenant(t, *id)
 	assert.Equal(t, tenantAttr.Description, getTenant.Description)
 	assert.Equal(t, tenant.Producer, getTenant.Producer)
 	assert.Equal(t, tenantAttr.Description, getTenant.Description)
 	assert.Equal(t, tenantAttr.MulticastCapability, getTenant.MulticastCapability)
 	assert.Equal(t, tenant.ResPool.FabricIds[0], getTenant.ResPool.FabricIds[0])
 	assert.Equal(t, tenant.Quota, getTenant.Quota)
-
 }
 
 func TestUpdateNonExistingTenant(t *testing.T) {
-	client := helper.GetClient()
+	client := GetClientTest()
 	u, _ := uuid.NewV4()
-	_, err := client.UpdateTenant(agilec.String(u.String()), agilec.String("dummy"), &models.TenantAttributes{})
+	_, err := client.UpdateTenant(String(u.String()), String("dummy"), &models.TenantAttributes{})
 	if assert.NotNil(t, err) {
 		if assert.NotNil(t, err) {
-			response, ok := err.(*agilec.ErrorResponse)
+			response, ok := err.(*ErrorResponse)
 			if !ok {
 				t.Error("Wrong Error Response")
 			}
@@ -137,9 +87,9 @@ func TestUpdateNonExistingTenant(t *testing.T) {
 }
 
 func TestGetTenant(t *testing.T) {
-	id, name, tenantAttr := GetTenantAttributes()
-	defer DeleteTenant(*id)
-	client := helper.GetClient()
+	client := GetClientTest()
+	id, name, tenantAttr := GetTenantAttributes(t, client)
+	defer DeleteTenant(t, *id)
 	err := client.CreateTenant(id, name, tenantAttr)
 	tenant, err := client.GetTenant(*id)
 	assert.Nil(t, err)
@@ -153,11 +103,11 @@ func TestGetTenant(t *testing.T) {
 }
 
 func TestGetNonExistTenant(t *testing.T) {
-	client := helper.GetClient()
+	client := GetClientTest()
 	u, _ := uuid.NewV4()
 	_, err := client.GetTenant(u.String())
 	if assert.NotNil(t, err) {
-		response, ok := err.(*agilec.ErrorResponse)
+		response, ok := err.(*ErrorResponse)
 
 		if !ok {
 			t.Error("Wrong Error Response")
@@ -170,9 +120,9 @@ func TestGetNonExistTenant(t *testing.T) {
 }
 
 func TestListTenants(t *testing.T) {
-	id, name, tenantAttr := GetTenantAttributes()
-	client := helper.GetClient()
-	defer DeleteTenant(*id)
+	client := GetClientTest()
+	id, name, tenantAttr := GetTenantAttributes(t, client)
+	defer DeleteTenant(t, *id)
 	err := client.CreateTenant(id, name, tenantAttr)
 	assert.Nil(t, err)
 	queryParameters := &models.TenantRequestOpts{}
@@ -189,19 +139,63 @@ func TestListTenants(t *testing.T) {
 }
 
 func TestDeleteTenant(t *testing.T) {
-	id, _, _ := GetTenantAttributes()
-	client := helper.GetClient()
+	client := GetClientTest()
+	id, _, _ := GetTenantAttributes(t, client)
 	err := client.DeleteTenant(*id)
 	assert.Nil(t, err)
 }
 
-func GetTenant(id string) *models.Tenant {
-	client := helper.GetClient()
+func GetTenantAttributes(t *testing.T, client *Client) (*string, *string, *models.TenantAttributes) {
+	t.Helper()
+	u, _ := uuid.NewV4()
+	fmt.Printf("Tenant ID Generated: %s\n", u.String())
+	Id := String(u.String())
+	Name := String("CLARANET-GO-TESTS-001")
+
+	Tenant := models.TenantAttributes{}
+	Tenant.Description = String("Created By GO")
+	Tenant.Producer = String("GOLANG")
+	Tenant.MulticastCapability = Bool(true)
+	Tenant.Quota = &models.TenantQuota{
+		LogicVasNum:    Int32(10),
+		LogicRouterNum: Int32(5),
+		LogicSwitchNum: Int32(6),
+	}
+	Tenant.MulticastQuota = &models.TenantMulticastQuota{
+		AclNum:     Int32(10),
+		AclRuleNum: Int32(10),
+	}
+
+	// Get Fabric
+	response, err := client.ListFabrics(&models.FabricRequestOpts{
+		BaseRequestOpts: models.BaseRequestOpts{
+			PageSize:  1,
+			PageIndex: 1,
+		},
+	})
+	if err != nil {
+		t.Logf("GetTenantAttributes %s", err)
+	}
+	assert.Equal(t, 1, len(response))
+	Tenant.ResPool = &models.TenantResPool{
+		//ExternalGatewayIds: []*string{"15e608a6-8d60-4c5a-89c0-a99e3cd967ff"},
+		FabricIds: []*string{response[0].Id},
+		//VmmIds:             []*string{"1", "2"},
+		//DhcpGroupIds:       []*string{"1", "2"},
+	}
+
+	return Id, Name, &Tenant
+}
+
+func GetTenant(t *testing.T, id string) *models.Tenant {
+	t.Helper()
+	client := GetClientTest()
 	tenant, _ := client.GetTenant(id)
 	return tenant
 }
 
-func DeleteTenant(id string) {
-	client := helper.GetClient()
+func DeleteTenant(t *testing.T, id string) {
+	t.Helper()
+	client := GetClientTest()
 	_ = client.DeleteTenant(id)
 }

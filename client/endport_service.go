@@ -22,7 +22,7 @@ func (sm *ServiceManager) CreateEndPort(id, name *string, endPortAttr *models.En
 
 func (sm *ServiceManager) GetEndPort(id string) (*models.EndPort, error) {
 	log.Debug("Begin Get End Port")
-	var response models.EndPortResponse
+	var response models.EndPortListResponse
 
 	if _, err := sm.Get(strings.ToLower(models.EndPortModuleName), EndPortModuleURL, id, &RequestOpts{
 		Response: &response,
@@ -30,7 +30,11 @@ func (sm *ServiceManager) GetEndPort(id string) (*models.EndPort, error) {
 		return nil, err
 	}
 
-	return &response.EndPort, nil
+	//if response.EndPort.Id == nil {
+	//	return nil, nil
+	//}
+
+	return response.EndPorts[0], nil
 }
 
 func (sm *ServiceManager) DeleteEndPort(id string) error {
