@@ -1,9 +1,10 @@
 package client
 
 import (
+	"strings"
+
 	"github.com/claranet/agilec-go-client/models"
 	log "github.com/sirupsen/logrus"
-	"strings"
 )
 
 const EndPortModuleURL = "/controller/dc/v3/logicnetwork/endports"
@@ -22,7 +23,7 @@ func (sm *ServiceManager) CreateEndPort(id, name *string, endPortAttr *models.En
 
 func (sm *ServiceManager) GetEndPort(id string) (*models.EndPort, error) {
 	log.Debug("Begin Get End Port")
-	var response models.EndPortListResponse
+	var response models.EndPortResponse
 
 	if _, err := sm.Get(strings.ToLower(models.EndPortModuleName), EndPortModuleURL, id, &RequestOpts{
 		Response: &response,
@@ -34,7 +35,7 @@ func (sm *ServiceManager) GetEndPort(id string) (*models.EndPort, error) {
 	//	return nil, nil
 	//}
 
-	return response.EndPorts[0], nil
+	return &response.EndPort, nil
 }
 
 func (sm *ServiceManager) DeleteEndPort(id string) error {

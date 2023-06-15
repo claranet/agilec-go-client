@@ -17,5 +17,8 @@
 # IDE Folders
 .idea/
 
+# VS code
+.vscode/
+
 # Environment Files
 .env

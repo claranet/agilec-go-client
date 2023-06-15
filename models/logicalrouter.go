@@ -32,7 +32,7 @@ type LogicalRouter struct {
 
 type LogicalRouterAttributes struct {
 	Description     *string                   `json:"description,omitempty"`
-	LogicNetworkId  *string                   `json:"logicNetworkId,omitempty"`
+	LogicNetworkId  *string                   `json:"logicNetworkId"`
 	RouterLocations []*LogicalRouterLocations `json:"routerLocations,omitempty"`
 	Type            *string                   `json:"type,omitempty"`
 	Vni             *int32                    `json:"vni,omitempty"`

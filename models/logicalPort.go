@@ -37,7 +37,7 @@ type LogicalPortAccessInfo struct {
 	Type               *string                          `json:"type,omitempty"`
 	Vlan               *int32                           `json:"vlan,omitempty"`
 	Qinq               *LogicalPortAccessInfoQinq       `json:"qinq,omitempty"`
-	Location           []*LogicalPortAccessInfoLocation `json:"location,omitempty"`
+	Location           []*LogicalPortAccessInfoLocation `json:"location"`
 	SubinterfaceNumber *int32                           `json:"subinterfaceNumber,omitempty"`
 }
 
